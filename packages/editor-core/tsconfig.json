@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "target": "es2024",
+    "strict": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "exclude": ["src/__tests__"],
+  "references": [
+    { "path": "../core" },
+    { "path": "../syntax" },
+    { "path": "../language" }
+  ]
+}

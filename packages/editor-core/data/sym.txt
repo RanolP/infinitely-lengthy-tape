@@ -1,0 +1,1269 @@
+// Control.
+wj \u{2060}
+zwj \u{200D}
+zwnj \u{200C}
+zws \u{200B}
+lrm \u{200E}
+rlm \u{200F}
+
+// Spaces.
+space \u{20}
+  .nobreak \u{A0}
+  .nobreak.narrow \u{202F}
+  .en \u{2002}
+  .quad \u{2003}
+  .third \u{2004}
+  .quarter \u{2005}
+  .sixth \u{2006}
+  .med \u{205F}
+  .fig \u{2007}
+  .punct \u{2008}
+  .thin \u{2009}
+  .hair \u{200A}
+
+// Delimiters.
+paren
+  .l (
+  .l.flat ⟮
+  .l.closed ⦇
+  .l.stroked ⦅
+  .r )
+  .r.flat ⟯
+  .r.closed ⦈
+  .r.stroked ⦆
+  .t ⏜
+  .b ⏝
+brace
+  .l \u{7B}
+  .l.stroked ⦃
+  .r \u{7D}
+  .r.stroked ⦄
+  .t ⏞
+  .b ⏟
+bracket
+  .l [
+  .l.tick.t ⦍
+  .l.tick.b ⦏
+  .l.stroked ⟦
+  .r ]
+  .r.tick.t ⦐
+  .r.tick.b ⦎
+  .r.stroked ⟧
+  .t ⎴
+  .b ⎵
+shell
+  .l ❲
+  .l.stroked ⟬
+  .l.filled ⦗
+  .r ❳
+  .r.stroked ⟭
+  .r.filled ⦘
+  .t ⏠
+  .b ⏡
+bag
+  .l ⟅
+  .r ⟆
+mustache
+  .l ⎰
+  .r ⎱
+bar
+  .v |
+  .v.double ‖
+  .v.triple ⦀
+  .v.broken ¦
+  .v.o ⦶
+  .h ―
+fence
+  .l ⧘
+  .l.double ⧚
+  .r ⧙
+  .r.double ⧛
+  .dotted ⦙
+chevron
+  .l ⟨
+  .l.curly ⧼
+  .l.dot ⦑
+  .l.closed ⦉
+  .l.double ⟪
+  .r ⟩
+  .r.curly ⧽
+  .r.dot ⦒
+  .r.closed ⦊
+  .r.double ⟫
+ceil
+  .l ⌈
+  .r ⌉
+floor
+  .l ⌊
+  .r ⌋
+corner
+  .l.t ⌜
+  .l.b ⌞
+  .r.t ⌝
+  .r.b ⌟
+
+// Punctuation.
+amp &
+  .inv ⅋
+ast
+  .op ∗
+  .op.o ⊛
+  .basic *\vs{text}
+  .low ⁎
+  .double ⁑
+  .triple ⁂
+  .square ⧆
+at @
+backslash \u{005C}
+  .o ⦸
+  .not ⧷
+co ℅
+colon :
+  .currency ₡
+  .double ∷
+  .tri ⁝
+  .tri.op ⫶
+  .eq ≔
+  .double.eq ⩴
+comma ,
+  .inv ⸲
+  .rev ⹁
+dagger †
+  .double ‡
+  .triple ⹋
+  .l ⸶
+  .r ⸷
+  .inv ⸸
+dash
+  .en –
+  .em —
+  .em.two ⸺
+  .em.three ⸻
+  .fig ‒
+  .colon ∹
+  .o ⊝
+  .wave 〜
+  .wave.double 〰\vs{text}
+dot
+  .op ⋅
+  .basic \u{2E}
+  .c ·
+  .o ⊙
+  .o.big ⨀
+  .square ⊡
+  .double ¨
+  .triple \u{20DB}
+  .quad \u{20DC}
+excl !
+  .double ‼\vs{text}
+  .inv ¡
+  .quest ⁉\vs{text}
+quest ?
+  .double ⁇
+  .excl ⁈
+  .inv ¿
+interrobang ‽
+  .inv ⸘
+hash #\vs{text}
+hyph ‐
+  .minus \u{2D}
+  .nobreak \u{2011}
+  .point ‧
+  .soft \u{AD}
+numero №
+percent %
+permille ‰
+permyriad ‱
+pilcrow ¶
+  .rev ⁋
+section §
+semi ;
+  .inv ⸵
+  .rev ⁏
+slash /
+  .o ⊘
+  .double ⫽
+  .triple ⫻
+  .big ⧸
+dots
+  .h.c ⋯
+  .h …
+  .v ⋮
+  .down ⋱
+  .up ⋰
+tilde
+  .op ∼
+  .basic ~
+  .dot ⩪
+  .eq ≃
+  .eq.not ≄
+  .eq.rev ⋍
+  .equiv ≅
+  .equiv.not ≇
+  .nequiv ≆
+  .not ≁
+  .rev ∽
+  .rev.equiv ≌
+  .triple ≋
+
+// Accents, quotes, and primes.
+acute ´
+  .double ˝
+breve ˘
+caret ‸
+caron ˇ
+hat ^
+diaer ¨
+grave `
+macron ¯
+quote
+  .double "
+  .single '
+  .l.double “
+  .l.single ‘
+  .r.double ”
+  .r.single ’
+  .chevron.l.double «
+  .chevron.l.single ‹
+  .chevron.r.double »
+  .chevron.r.single ›
+  .high.double ‟
+  .high.single ‛
+  .low.double „
+  .low.single ‚
+prime ′
+  .rev ‵
+  .double ″
+  .double.rev ‶
+  .triple ‴
+  .triple.rev ‷
+  .quad ⁗
+
+// https://en.wikipedia.org/wiki/List_of_mathematical_symbols_by_subject
+
+// Arithmetic.
+plus +
+  .o ⊕
+  .o.l ⨭
+  .o.r ⨮
+  .o.arrow ⟴
+  .o.big ⨁
+  .dot ∔
+  .double ⧺
+  .minus ±
+  .square ⊞
+  .triangle ⨹
+  .triple ⧻
+minus −
+  .o ⊖
+  .dot ∸
+  .plus ∓
+  .square ⊟
+  .tilde ≂
+  .triangle ⨺
+div ÷
+  .o ⨸
+  .slanted.o ⦼
+times ×
+  .big ⨉
+  .o ⊗
+  .o.l ⨴
+  .o.r ⨵
+  .o.hat ⨶
+  .o.big ⨂
+  .div ⋇
+  .three.l ⋋
+  .three.r ⋌
+  .l ⋉
+  .r ⋊
+  .square ⊠
+  .triangle ⨻
+ratio ∶
+
+// Relations.
+eq =
+  .star ≛
+  .o ⊜
+  .colon ≕
+  .dots ≑
+  .dots.down ≒
+  .dots.up ≓
+  .def ≝
+  .delta ≜
+  .equi ≚
+  .est ≙
+  .gt ⋝
+  .lt ⋜
+  .m ≞
+  .not ≠
+  .prec ⋞
+  .quest ≟
+  .succ ⋟
+  .triple ≡
+  .triple.not ≢
+  .quad ≣
+gt >
+  .o ⧁
+  .dot ⋗
+  .approx ⪆
+  .arc ⪧
+  .arc.eq ⪩
+  .closed ⊳
+  .closed.eq ⊵
+  .closed.eq.not ⋭
+  .closed.not ⋫
+  .double ≫
+  .double.nested ⪢
+  .eq ≥
+  .eq.slant ⩾
+  .eq.lt ⋛
+  .eq.not ≱
+  .equiv ≧
+  .lt ≷
+  .lt.not ≹
+  .neq ⪈
+  .napprox ⪊
+  .nequiv ≩
+  .not ≯
+  .ntilde ⋧
+  .tilde ≳
+  .tilde.not ≵
+  @deprecated: `gt.tri` is deprecated, use `gt.closed` instead
+  .tri ⊳
+  @deprecated: `gt.tri.eq` is deprecated, use `gt.closed.eq` instead
+  .tri.eq ⊵
+  @deprecated: `gt.tri.eq.not` is deprecated, use `gt.closed.eq.not` instead
+  .tri.eq.not ⋭
+  @deprecated: `gt.tri.not` is deprecated, use `gt.closed.not` instead
+  .tri.not ⋫
+  .triple ⋙
+  .triple.nested ⫸
+lt <
+  .o ⧀
+  .dot ⋖
+  .approx ⪅
+  .arc ⪦
+  .arc.eq ⪨
+  .closed ⊲
+  .closed.eq ⊴
+  .closed.eq.not ⋬
+  .closed.not ⋪
+  .double ≪
+  .double.nested ⪡
+  .eq ≤
+  .eq.slant ⩽
+  .eq.gt ⋚
+  .eq.not ≰
+  .equiv ≦
+  .gt ≶
+  .gt.not ≸
+  .neq ⪇
+  .napprox ⪉
+  .nequiv ≨
+  .not ≮
+  .ntilde ⋦
+  .tilde ≲
+  .tilde.not ≴
+  @deprecated: `lt.tri` is deprecated, use `lt.closed` instead
+  .tri ⊲
+  @deprecated: `lt.tri.eq` is deprecated, use `lt.closed.eq` instead
+  .tri.eq ⊴
+  @deprecated: `lt.tri.eq.not` is deprecated, use `lt.closed.eq.not` instead
+  .tri.eq.not ⋬
+  @deprecated: `lt.tri.not` is deprecated, use `lt.closed.not` instead
+  .tri.not ⋪
+  .triple ⋘
+  .triple.nested ⫷
+approx ≈
+  .eq ≊
+  .not ≉
+prec ≺
+  .approx ⪷
+  .curly.eq ≼
+  .curly.eq.not ⋠
+  .double ⪻
+  .eq ⪯
+  .equiv ⪳
+  .napprox ⪹
+  .neq ⪱
+  .nequiv ⪵
+  .not ⊀
+  .ntilde ⋨
+  .tilde ≾
+succ ≻
+  .approx ⪸
+  .curly.eq ≽
+  .curly.eq.not ⋡
+  .double ⪼
+  .eq ⪰
+  .equiv ⪴
+  .napprox ⪺
+  .neq ⪲
+  .nequiv ⪶
+  .not ⊁
+  .ntilde ⋩
+  .tilde ≿
+equiv ≡
+  .not ≢
+smt ⪪
+  .eq ⪬
+lat ⪫
+  .eq ⪭
+prop ∝
+original ⊶
+image ⊷
+asymp ≍
+  .not ≭
+
+// Set theory.
+emptyset ∅
+  .zero ∅\vs{1}
+  .arrow.r ⦳
+  .arrow.l ⦴
+  .bar ⦱
+  .circle ⦲
+  .rev ⦰
+nothing ∅
+  .zero ∅\vs{1}
+  .arrow.r ⦳
+  .arrow.l ⦴
+  .bar ⦱
+  .circle ⦲
+  .rev ⦰
+without ∖
+complement ∁
+in ∈
+  .not ∉
+  .rev ∋
+  .rev.not ∌
+  .rev.small ∍
+  .small ∊
+subset ⊂
+  .approx ⫉
+  .closed ⫏
+  .closed.eq ⫑
+  .dot ⪽
+  .double ⋐
+  .eq ⊆
+  .eq.dot ⫃
+  .eq.not ⊈
+  .eq.sq ⊑
+  .eq.sq.not ⋢
+  .equiv ⫅
+  .neq ⊊
+  .nequiv ⫋
+  .not ⊄
+  .plus ⪿
+  .sq ⊏
+  .sq.neq ⋤
+  .tilde ⫇
+  .times ⫁
+supset ⊃
+  .approx ⫊
+  .closed ⫐
+  .closed.eq ⫒
+  .dot ⪾
+  .double ⋑
+  .eq ⊇
+  .eq.dot ⫄
+  .eq.not ⊉
+  .eq.sq ⊒
+  .eq.sq.not ⋣
+  .equiv ⫆
+  .neq ⊋
+  .nequiv ⫌
+  .not ⊅
+  .plus ⫀
+  .sq ⊐
+  .sq.neq ⋥
+  .tilde ⫈
+  .times ⫂
+union ∪
+  .serif ∪\vs{1}
+  .arrow ⊌
+  .big ⋃
+  .dot ⊍
+  .dot.big ⨃
+  .double ⋓
+  .minus ⩁
+  .or ⩅
+  .plus ⊎
+  .plus.big ⨄
+  .sq ⊔
+  .sq.serif ⊔\vs{1}
+  .sq.big ⨆
+  .sq.double ⩏
+inter ∩
+  .serif ∩\vs{1}
+  .and ⩄
+  .big ⋂
+  .dot ⩀
+  .double ⋒
+  .sq ⊓
+  .sq.serif ⊓\vs{1}
+  .sq.big ⨅
+  .sq.double ⩎
+
+// Calculus.
+infinity ∞
+  .bar ⧞
+  .incomplete ⧜
+  .tie ⧝
+oo ∞
+partial ∂
+gradient ∇
+nabla ∇
+sum ∑
+  .integral ⨋
+product ∏
+  .co ∐
+integral ∫
+  .arrow.hook ⨗
+  .ccw ⨑
+  .cont ∮
+  .cont.ccw ∳
+  .cont.cw ∲
+  .cw ∱
+  .dash ⨍
+  .dash.double ⨎
+  .double ∬
+  .quad ⨌
+  .inter ⨙
+  .slash ⨏
+  .square ⨖
+  .surf ∯
+  .times ⨘
+  .triple ∭
+  .union ⨚
+  .vol ∰
+laplace ∆
+
+// Logic.
+forall ∀
+exists ∃
+  .not ∄
+top ⊤
+bot ⊥
+not ¬
+and ∧
+  .big ⋀
+  .curly ⋏
+  .dot ⟑
+  .double ⩓
+or ∨
+  .big ⋁
+  .curly ⋎
+  .dot ⟇
+  .double ⩔
+xor ⊕
+  .big ⨁
+models ⊧
+forces ⊩
+  .not ⊮
+therefore ∴
+because ∵
+qed ∎
+
+// Function and category theory.
+mapsto ↦
+  .long ⟼
+compose ∘
+  .o ⊚
+convolve ∗
+  .o ⊛
+multimap ⊸
+  .double ⧟
+
+// Game theory.
+tiny ⧾
+miny ⧿
+
+// Number theory.
+divides ∣
+  .not ∤
+  .not.rev ⫮
+  .struck ⟊
+
+// Algebra.
+wreath ≀
+
+// Geometry.
+angle ∠
+  .acute ⦟
+  .arc ∡
+  .arc.rev ⦛
+  .azimuth ⍼
+  .obtuse ⦦
+  .rev ⦣
+  .right ∟
+  .right.rev ⯾
+  .right.arc ⊾
+  .right.dot ⦝
+  .right.square ⦜
+  .s ⦞
+  .spatial ⟀
+  .spheric ∢
+  .spheric.rev ⦠
+  .spheric.t ⦡
+angzarr ⍼
+parallel ∥
+  .struck ⫲
+  .o ⦷
+  .eq ⋕
+  .equiv ⩨
+  .not ∦
+  .slanted.eq ⧣
+  .slanted.eq.tilde ⧤
+  .slanted.equiv ⧥
+  .tilde ⫳
+perp ⟂
+  .o ⦹
+
+// Astronomical.
+earth 🜨
+  .alt ♁
+jupiter ♃
+mars ♂\vs{text}
+mercury ☿
+neptune ♆
+  .alt ⯉
+saturn ♄
+sun ☉
+uranus ⛢
+  .alt ♅
+venus ♀\vs{text}
+
+// Miscellaneous Technical.
+diameter ⌀
+interleave ⫴
+  .big ⫼
+  .struck ⫵
+@deprecated: `join` is deprecated, use `bowtie.big` instead
+join ⨝
+  .r ⟖
+  .l ⟕
+  .l.r ⟗
+bowtie
+  .stroked ⋈
+  .stroked.big ⨝
+  .stroked.big.l ⟕
+  .stroked.big.r ⟖
+  .stroked.big.l.r ⟗
+  .filled ⧓
+  .filled.l ⧑
+  .filled.r ⧒
+hourglass
+  .stroked ⧖
+  .filled ⧗
+degree °
+smash ⨳
+power
+  .standby ⏻
+  .on ⏽
+  .off ⭘
+  .on.off ⏼
+  .sleep ⏾
+smile ⌣
+frown ⌢
+
+// Currency.
+afghani ؋
+baht ฿
+bitcoin ₿
+cedi ₵
+cent ¢
+currency ¤
+dollar $
+dong ₫
+dorome ߾
+dram ֏
+euro €
+guarani ₲
+hryvnia ₴
+kip ₭
+lari ₾
+lira ₺
+manat ₼
+naira ₦
+pataca $
+peso $
+  .philippine ₱
+pound £
+riel ៛
+riyal ⃁
+ruble ₽
+rupee
+  .indian ₹
+  .generic ₨
+  .tamil ௹
+  .wancho 𞋿
+shekel ₪
+som ⃀
+taka ৳
+taman ߿
+tenge ₸
+togrog ₮
+won ₩
+yen ¥
+yuan ¥
+
+// Miscellaneous.
+ballot ☐
+  .cross ☒
+  .check ☑\vs{text}
+  .check.heavy 🗹
+checkmark ✓
+  .light 🗸
+  .heavy ✔\vs{text}
+crossmark ✗
+  .heavy ✘
+floral ❦
+  .l ☙
+  .r ❧
+refmark ※
+cc 🅭
+  .by 🅯
+  .nc 🄏
+  .nd ⊜
+  .public 🅮
+  .sa 🄎
+  .zero 🄍
+copyright ©\vs{text}
+  .sound ℗
+copyleft 🄯
+trademark ™\vs{text}
+  .registered ®\vs{text}
+  .service ℠
+maltese ✠
+suit
+  .club.filled ♣\vs{text}
+  .club.stroked ♧
+  .diamond.filled ♦\vs{text}
+  .diamond.stroked ♢
+  .heart.filled ♥\vs{text}
+  .heart.stroked ♡
+  .spade.filled ♠\vs{text}
+  .spade.stroked ♤
+
+// Music.
+note
+  .up 🎜
+  .down 🎝
+  .whole 𝅝
+  .half 𝅗𝅥
+  .quarter 𝅘𝅥
+  .quarter.alt ♩
+  .eighth 𝅘𝅥𝅮
+  .eighth.alt ♪
+  .eighth.beamed ♫
+  .sixteenth 𝅘𝅥𝅯
+  .sixteenth.beamed ♬
+  .grace 𝆕
+  .grace.slash 𝆔
+rest
+  .whole 𝄻
+  .multiple 𝄺
+  .multiple.measure 𝄩
+  .half 𝄼
+  .quarter 𝄽
+  .eighth 𝄾
+  .sixteenth 𝄿
+natural ♮
+  .t 𝄮
+  .b 𝄯
+flat ♭
+  .t 𝄬
+  .b 𝄭
+  .double 𝄫
+  .quarter 𝄳
+sharp ♯
+  .t 𝄰
+  .b 𝄱
+  .double 𝄪
+  .quarter 𝄲
+
+// Shapes.
+bullet •
+  .op ∙
+  .o ⦿
+  .stroked ◦
+  .stroked.o ⦾
+  .hole ◘
+  .hyph ⁃
+  .tri ‣
+  .l ⁌
+  .r ⁍
+circle
+  .stroked ○
+  .stroked.tiny ∘
+  .stroked.small ⚬
+  .stroked.big ◯
+  .filled ●
+  .filled.tiny ⦁
+  .filled.small ∙
+  .filled.big ⬤
+  .dotted ◌
+ellipse
+  .stroked.h ⬭
+  .stroked.v ⬯
+  .filled.h ⬬
+  .filled.v ⬮
+triangle
+  .stroked.t △
+  .stroked.b ▽
+  .stroked.r ▷
+  .stroked.l ◁
+  .stroked.bl ◺
+  .stroked.br ◿
+  .stroked.tl ◸
+  .stroked.tr ◹
+  .stroked.small.t ▵
+  .stroked.small.b ▿
+  .stroked.small.r ▹
+  .stroked.small.l ◃
+  .stroked.rounded 🛆
+  .stroked.nested ⟁
+  .stroked.dot ◬
+  .filled.t ▲
+  .filled.b ▼
+  .filled.r ▶\vs{text}
+  .filled.l ◀\vs{text}
+  .filled.bl ◣
+  .filled.br ◢
+  .filled.tl ◤
+  .filled.tr ◥
+  .filled.small.t ▴
+  .filled.small.b ▾
+  .filled.small.r ▸
+  .filled.small.l ◂
+square
+  .stroked □
+  .stroked.tiny ▫\vs{text}
+  .stroked.small ◽\vs{text}
+  .stroked.medium ◻\vs{text}
+  .stroked.big ⬜\vs{text}
+  .stroked.dotted ⬚
+  .stroked.rounded ▢
+  .filled ■
+  .filled.tiny ▪\vs{text}
+  .filled.small ◾\vs{text}
+  .filled.medium ◼\vs{text}
+  .filled.big ⬛\vs{text}
+rect
+  .stroked.h ▭
+  .stroked.v ▯
+  .filled.h ▬
+  .filled.v ▮
+penta
+  .stroked ⬠
+  .filled ⬟
+hexa
+  .stroked ⬡
+  .filled ⬢
+diamond
+  .stroked ◇
+  .stroked.small ⋄
+  .stroked.medium ⬦
+  .stroked.dot ⟐
+  .filled ◆
+  .filled.medium ⬥
+  .filled.small ⬩
+lozenge
+  .stroked ◊
+  .stroked.small ⬫
+  .stroked.medium ⬨
+  .filled ⧫
+  .filled.small ⬪
+  .filled.medium ⬧
+parallelogram
+  .stroked ▱
+  .filled ▰
+star
+  .op ⋆
+  .stroked ☆
+  .filled ★
+
+// Arrows, harpoons, and tacks.
+arrow
+  .r →
+  .r.long.bar ⟼
+  .r.bar ↦
+  .r.curve ⤷
+  .r.turn ⮎
+  .r.dashed ⇢
+  .r.dotted ⤑
+  .r.double ⇒
+  .r.double.bar ⤇
+  .r.double.long ⟹
+  .r.double.long.bar ⟾
+  .r.double.not ⇏
+  .r.double.struck ⤃
+  .r.filled ➡\vs{text}
+  .r.hook ↪\vs{text}
+  .r.long ⟶
+  .r.long.squiggly ⟿
+  .r.loop ↬
+  .r.not ↛
+  .r.quad ⭆
+  .r.squiggly ⇝
+  .r.stop ⇥
+  .r.stroked ⇨
+  .r.struck ⇸
+  .r.dstruck ⇻
+  .r.tail ↣
+  .r.tail.struck ⤔
+  .r.tail.dstruck ⤕
+  .r.tilde ⥲
+  .r.triple ⇛
+  .r.twohead ↠
+  .r.twohead.bar ⤅
+  .r.twohead.struck ⤀
+  .r.twohead.dstruck ⤁
+  .r.twohead.tail ⤖
+  .r.twohead.tail.struck ⤗
+  .r.twohead.tail.dstruck ⤘
+  .r.open ⇾
+  .r.wave ↝
+  .l ←
+  .l.bar ↤
+  .l.curve ⤶
+  .l.turn ⮌
+  .l.dashed ⇠
+  .l.dotted ⬸
+  .l.double ⇐
+  .l.double.bar ⤆
+  .l.double.long ⟸
+  .l.double.long.bar ⟽
+  .l.double.not ⇍
+  .l.double.struck ⤂
+  .l.filled ⬅\vs{text}
+  .l.hook ↩\vs{text}
+  .l.long ⟵
+  .l.long.bar ⟻
+  .l.long.squiggly ⬳
+  .l.loop ↫
+  .l.not ↚
+  .l.quad ⭅
+  .l.squiggly ⇜
+  .l.stop ⇤
+  .l.stroked ⇦
+  .l.struck ⇷
+  .l.dstruck ⇺
+  .l.tail ↢
+  .l.tail.struck ⬹
+  .l.tail.dstruck ⬺
+  .l.tilde ⭉
+  .l.triple ⇚
+  .l.twohead ↞
+  .l.twohead.bar ⬶
+  .l.twohead.struck ⬴
+  .l.twohead.dstruck ⬵
+  .l.twohead.tail ⬻
+  .l.twohead.tail.struck ⬼
+  .l.twohead.tail.dstruck ⬽
+  .l.open ⇽
+  .l.wave ↜
+  .t ↑
+  .t.bar ↥
+  .t.curve ⤴\vs{text}
+  .t.turn ⮍
+  .t.dashed ⇡
+  .t.double ⇑
+  .t.filled ⬆\vs{text}
+  .t.quad ⟰
+  .t.stop ⤒
+  .t.stroked ⇧
+  .t.struck ⤉
+  .t.dstruck ⇞
+  .t.triple ⤊
+  .t.twohead ↟
+  .b ↓
+  .b.bar ↧
+  .b.curve ⤵\vs{text}
+  .b.turn ⮏
+  .b.dashed ⇣
+  .b.double ⇓
+  .b.filled ⬇\vs{text}
+  .b.quad ⟱
+  .b.stop ⤓
+  .b.stroked ⇩
+  .b.struck ⤈
+  .b.dstruck ⇟
+  .b.triple ⤋
+  .b.twohead ↡
+  .l.r ↔\vs{text}
+  .l.r.double ⇔
+  .l.r.double.long ⟺
+  .l.r.double.not ⇎
+  .l.r.double.struck ⤄
+  .l.r.filled ⬌
+  .l.r.long ⟷
+  .l.r.not ↮
+  .l.r.stroked ⬄
+  .l.r.struck ⇹
+  .l.r.dstruck ⇼
+  .l.r.open ⇿
+  .l.r.wave ↭
+  .t.b ↕\vs{text}
+  .t.b.double ⇕
+  .t.b.filled ⬍
+  .t.b.stroked ⇳
+  .tr ↗\vs{text}
+  .tr.double ⇗
+  .tr.filled ⬈
+  .tr.hook ⤤
+  .tr.stroked ⬀
+  .br ↘\vs{text}
+  .br.double ⇘
+  .br.filled ⬊
+  .br.hook ⤥
+  .br.stroked ⬂
+  .tl ↖\vs{text}
+  .tl.double ⇖
+  .tl.filled ⬉
+  .tl.hook ⤣
+  .tl.stroked ⬁
+  .bl ↙\vs{text}
+  .bl.double ⇙
+  .bl.filled ⬋
+  .bl.hook ⤦
+  .bl.stroked ⬃
+  .tl.br ⤡
+  .tr.bl ⤢
+  .ccw ↺
+  .ccw.half ↶
+  .cw ↻
+  .cw.half ↷
+  .zigzag ↯
+arrows
+  .rr ⇉
+  .ll ⇇
+  .tt ⇈
+  .bb ⇊
+  .lr ⇆
+  .lr.stop ↹
+  .rl ⇄
+  .tb ⇅
+  .bt ⇵
+  .rrr ⇶
+  .lll ⬱
+arrowhead
+  .t ⌃
+  .b ⌄
+harpoon
+  .rt ⇀
+  .rt.bar ⥛
+  .rt.stop ⥓
+  .rb ⇁
+  .rb.bar ⥟
+  .rb.stop ⥗
+  .lt ↼
+  .lt.bar ⥚
+  .lt.stop ⥒
+  .lb ↽
+  .lb.bar ⥞
+  .lb.stop ⥖
+  .tl ↿
+  .tl.bar ⥠
+  .tl.stop ⥘
+  .tr ↾
+  .tr.bar ⥜
+  .tr.stop ⥔
+  .bl ⇃
+  .bl.bar ⥡
+  .bl.stop ⥙
+  .br ⇂
+  .br.bar ⥝
+  .br.stop ⥕
+  .lt.rt ⥎
+  .lb.rb ⥐
+  .lb.rt ⥋
+  .lt.rb ⥊
+  .tl.bl ⥑
+  .tr.br ⥏
+  .tl.br ⥍
+  .tr.bl ⥌
+harpoons
+  .rtrb ⥤
+  .blbr ⥥
+  .bltr ⥯
+  .lbrb ⥧
+  .ltlb ⥢
+  .ltrb ⇋
+  .ltrt ⥦
+  .rblb ⥩
+  .rtlb ⇌
+  .rtlt ⥨
+  .tlbr ⥮
+  .tltr ⥣
+tack
+  .r ⊢
+  .r.not ⊬
+  .r.long ⟝
+  .r.short ⊦
+  .r.double ⊨
+  .r.double.not ⊭
+  .l ⊣
+  .l.long ⟞
+  .l.short ⫞
+  .l.double ⫤
+  .t ⊥
+  .t.big ⟘
+  .t.double ⫫
+  .t.short ⫠
+  .b ⊤
+  .b.big ⟙
+  .b.double ⫪
+  .b.short ⫟
+  .l.r ⟛
+
+// Lowercase Greek.
+alpha α
+beta β
+  .alt ϐ
+chi χ
+delta δ
+digamma ϝ
+epsilon ε
+  .alt ϵ
+  .alt.rev ϶
+eta η
+gamma γ
+iota ι
+  .inv ℩
+kappa κ
+  .alt ϰ
+lambda λ
+mu μ
+nu ν
+omega ω
+omicron ο
+phi φ
+  .alt ϕ
+pi π
+  .alt ϖ
+psi ψ
+rho ρ
+  .alt ϱ
+sigma σ
+  .alt ς
+tau τ
+theta θ
+  .alt ϑ
+upsilon υ
+xi ξ
+zeta ζ
+
+// Uppercase Greek.
+Alpha Α
+Beta Β
+Chi Χ
+Delta Δ
+Digamma Ϝ
+Epsilon Ε
+Eta Η
+Gamma Γ
+Iota Ι
+Kappa Κ
+Lambda Λ
+Mu Μ
+Nu Ν
+Omega Ω
+  .inv ℧
+Omicron Ο
+Phi Φ
+Pi Π
+Psi Ψ
+Rho Ρ
+Sigma Σ
+Tau Τ
+Theta Θ
+  .alt ϴ
+Upsilon Υ
+Xi Ξ
+Zeta Ζ
+
+// Lowercase Cyrillic.
+sha ш
+
+// Uppercase Cyrillic.
+Sha Ш
+
+// Hebrew.
+// In math, the following symbols are replaced with corresponding characters
+// from Letterlike Symbols.
+// See https://github.com/typst/typst/pull/3375.
+aleph א
+beth ב
+gimel ג
+daleth ד
+
+// Double-struck.
+AA 𝔸
+BB 𝔹
+CC ℂ
+DD 𝔻
+EE 𝔼
+FF 𝔽
+GG 𝔾
+HH ℍ
+II 𝕀
+JJ 𝕁
+KK 𝕂
+LL 𝕃
+MM 𝕄
+NN ℕ
+OO 𝕆
+PP ℙ
+QQ ℚ
+RR ℝ
+SS 𝕊
+TT 𝕋
+UU 𝕌
+VV 𝕍
+WW 𝕎
+XX 𝕏
+YY 𝕐
+ZZ ℤ
+
+// Miscellaneous letter-likes.
+angstrom Å
+ell ℓ
+pee ℘
+planck ħ
+Re ℜ
+Im ℑ
+dotless
+  .i ı
+  .j ȷ
+
+// Miscellany.
+die
+  .six ⚅
+  .five ⚄
+  .four ⚃
+  .three ⚂
+  .two ⚁
+  .one ⚀
+errorbar
+  .square.stroked ⧮
+  .square.filled ⧯
+  .diamond.stroked ⧰
+  .diamond.filled ⧱
+  .circle.stroked ⧲
+  .circle.filled ⧳
+
+gender {
+  female ♀\vs{text}
+    .double ⚢
+    .male ⚤
+  intersex ⚥
+  male ♂\vs{text}
+    .double ⚣
+    .female ⚤
+    .stroke ⚦
+    .stroke.t ⚨
+    .stroke.r ⚩
+  neuter ⚲
+  trans ⚧\vs{text}
+}

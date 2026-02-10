@@ -1,0 +1,26 @@
+{
+  "name": "@edhit/editor-core",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "test": "vitest run",
+    "lint": "oxlint",
+    "format": "oxfmt --write src"
+  },
+  "dependencies": {
+    "@edhit/core": "workspace:*",
+    "@edhit/syntax": "workspace:*",
+    "@edhit/language": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0"
+  }
+}
