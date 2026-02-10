@@ -1,0 +1,63 @@
+def bad : Type := Foo
+---
+unresolved name: Foo
+
+======
+
+def Nat := data { .zero, .succ (_ : Nat) }
+
+def wrong : Nat := Type
+---
+type mismatch
+
+======
+
+def Nat := data { .zero, .succ (_ : Nat) }
+
+def bad : Nat := Nat.zero Nat.zero
+---
+expected a function type
+
+======
+
+def Nat := data { .zero, .succ (_ : Nat) }
+
+def bad : Nat := (\x. x) Nat.zero
+---
+cannot infer type of lambda
+
+======
+
+def Nat := data { .zero, .succ (_ : Nat) }
+
+def bad : Nat := Nat.succ Nat.zero Nat.zero
+---
+expected a function type
+
+======
+
+def Nat := data { .zero, .succ (_ : Nat) }
+
+def bad : Type := Nat.zero
+---
+type mismatch
+
+======
+
+def bad1 : Type := Foo
+def bad2 : Type := Bar
+---
+unresolved name: Foo
+unresolved name: Bar
+
+======
+
+def bad : Type := Foo
+def good : Type := Type
+---
+unresolved name: Foo
+
+======
+
+/- def bad : Type := Foo
+def good : Type := Type

@@ -1,0 +1,48 @@
+def Unit := data { .mkUnit }
+
+======
+
+def Bool := data { .true, .false }
+
+======
+
+def Nat := data { .zero, .succ (_ : Nat) }
+
+======
+
+def Void := data {}
+
+======
+
+def Nat := data { .zero, .succ (_ : Nat) }
+
+def Bool := data { .true, .false }
+
+def List (A : Type) := data { .nil, .cons (_ : A) (_ : List A) }
+
+======
+
+def Nat := data { .zero, .succ (_ : Nat) }
+
+def Bool := data { .true, .false }
+
+def myNat : Nat := Nat.zero
+def myBool : Bool := Bool.true
+
+======
+
+def Nat := data { .zero, .succ (_ : Nat) }
+
+def Bool := data { .true, .false }
+
+def bad : Nat := Bool.true
+---
+type mismatch
+
+======
+
+def Bool := data {
+  .true,
+  /- .bad,
+  .false
+}
