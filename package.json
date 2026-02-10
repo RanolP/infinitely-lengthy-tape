@@ -3,9 +3,13 @@
   "private": true,
   "packageManager": "pnpm@10.28.2",
   "scripts": {
+    "build": "turbo build",
     "lint": "turbo lint",
     "format": "turbo format",
     "check": "turbo lint format"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
   },
   "devDependencies": {
     "oxfmt": "^0.28.0",
