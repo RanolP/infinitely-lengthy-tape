@@ -49,10 +49,17 @@ jobs:
           VITE_READ_ONLY: "true"
         run: pnpm --filter @edhit/infinitely-lengthy-tape build
 
+      - name: prepare-pages-artifact
+        run: |
+          rm -rf ./.pages
+          mkdir -p ./.pages
+          cp -a apps/infinitely-lengthy-tape/dist/client/. ./.pages/
+          touch ./.pages/.nojekyll
+
       - name: upload-pages-artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/infinitely-lengthy-tape/dist/client
+          path: ./.pages
 
   deploy:
     needs: build
