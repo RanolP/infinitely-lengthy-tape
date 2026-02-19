@@ -13,6 +13,8 @@ export default defineConfig({
       '@edhit/notebook': fileURLToPath(new URL('../../packages/notebook/src/index.ts', import.meta.url)),
       '@edhit/editor-core': fileURLToPath(new URL('../../packages/editor-core/src/index.ts', import.meta.url)),
       '@edhit/language': fileURLToPath(new URL('../../packages/language/src/index.ts', import.meta.url)),
+      '@edhit/core': fileURLToPath(new URL('../../packages/core/src/index.ts', import.meta.url)),
+      '@edhit/syntax': fileURLToPath(new URL('../../packages/syntax/src/index.ts', import.meta.url)),
     },
   },
   optimizeDeps: {
