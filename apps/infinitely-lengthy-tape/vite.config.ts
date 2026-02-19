@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath, URL } from 'node:url';
 
@@ -7,7 +7,7 @@ const base = process.env.VITE_BASE_PATH || '/';
 
 export default defineConfig({
   base,
-  plugins: [react(), tailwindcss()],
+  plugins: [reactRouter(), tailwindcss()],
   resolve: {
     alias: {
       '@edhit/notebook': fileURLToPath(new URL('../../packages/notebook/src/index.ts', import.meta.url)),

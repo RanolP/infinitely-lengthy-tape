@@ -5,3 +5,6 @@ dist/
 
 # typst cache
 apps/infinitely-lengthy-tape/workspace/.cache/
+
+# generated static workspace snapshot
+apps/infinitely-lengthy-tape/public/static-workspace/

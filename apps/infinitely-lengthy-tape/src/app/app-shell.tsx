@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { Routes, Route, useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { Sidebar } from '../features/file-tree/components/sidebar.js';
 import { PageEditor } from '../features/page/components/page-editor.js';
 import { useFileTree } from '../features/file-tree/hooks/use-file-tree.js';
@@ -13,13 +13,17 @@ function pathToRoute(filePath: string): string {
 
 function routeToPath(routePath: string): string {
   const trimmed = routePath.startsWith('/') ? routePath.slice(1) : routePath;
-  return trimmed ? trimmed + '.tape' : '';
+  return trimmed ? `${trimmed}.tape` : '';
 }
 
-function PageView({ fileTree }: { fileTree: ReturnType<typeof useFileTree> }) {
+export function App() {
   const params = useParams();
   const navigate = useNavigate();
-  const filePath = routeToPath(params['*'] || '');
+  const fileTree = useFileTree();
+
+  const routePath = params['*'] || '';
+  const filePath = routeToPath(routePath);
+  const selectedPath = filePath || null;
 
   const handlePathChanged = useCallback(
     (newPath: string) => {
@@ -36,24 +40,6 @@ function PageView({ fileTree }: { fileTree: ReturnType<typeof useFileTree> }) {
       fileTree.updateTitle(filePath, notebook.title);
     }
   }, [filePath, notebook.title, fileTree.updateTitle]);
-
-  if (!filePath) {
-    return (
-      <div className="app-empty">
-        <h1 className="text-xl font-bold text-neutral-400">infinitely lengthy tape</h1>
-        <p className="mt-2 text-sm text-neutral-500">Select a file or create a new one to begin.</p>
-      </div>
-    );
-  }
-
-  return   <PageEditor notebook={notebook} filePath={filePath} onRefresh={fileTree.refresh} readOnly={isReadOnly} />;
-}
-
-export function App() {
-  const fileTree = useFileTree();
-  const navigate = useNavigate();
-
-  const selectedPath = routeToPath(location.pathname);
 
   const handleSelectFile = useCallback(
     (path: string) => {
@@ -86,7 +72,7 @@ export function App() {
         readOnly={isReadOnly}
         tree={fileTree.tree}
         loading={fileTree.loading}
-        selectedPath={selectedPath || null}
+        selectedPath={selectedPath}
         onSelectFile={handleSelectFile}
         onCreateFile={handleCreateFile}
         onCreateDir={fileTree.mkdir}
@@ -94,9 +80,14 @@ export function App() {
         onRefresh={fileTree.refresh}
       />
       <main className="app-main">
-        <Routes>
-          <Route path="*" element={<PageView fileTree={fileTree} />} />
-        </Routes>
+        {!filePath ? (
+          <div className="app-empty">
+            <h1 className="text-xl font-bold text-neutral-400">infinitely lengthy tape</h1>
+            <p className="mt-2 text-sm text-neutral-500">Select a file or create a new one to begin.</p>
+          </div>
+        ) : (
+          <PageEditor notebook={notebook} filePath={filePath} onRefresh={fileTree.refresh} readOnly={isReadOnly} />
+        )}
       </main>
     </div>
   );

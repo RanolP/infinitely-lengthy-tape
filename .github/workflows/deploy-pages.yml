@@ -52,7 +52,7 @@ jobs:
       - name: upload-pages-artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/infinitely-lengthy-tape/dist
+          path: apps/infinitely-lengthy-tape/dist/client
 
   deploy:
     needs: build
