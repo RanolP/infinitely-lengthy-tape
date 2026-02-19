@@ -45,31 +45,17 @@ jobs:
 
       - name: build-app
         env:
-          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_BASE_PATH: /
           VITE_READ_ONLY: "true"
         run: pnpm --filter @edhit/infinitely-lengthy-tape build
 
-      - name: prepare-website-artifact-only
-        env:
-          SITE_PREFIX: ${{ github.event.repository.name }}
-        run: |
-          set -euxo pipefail
-          SRC="apps/infinitely-lengthy-tape/dist/client"
-          DST="$GITHUB_WORKSPACE/_site"
-
-          test -f "$SRC/$SITE_PREFIX/index.html"
-          rm -rf "$DST"
-          mkdir -p "$DST/$SITE_PREFIX"
-
-          cp -a "$SRC/$SITE_PREFIX/." "$DST/$SITE_PREFIX/"
-          cp -a "$SRC/assets" "$DST/$SITE_PREFIX/assets"
-          cp -a "$SRC/static-workspace" "$DST/$SITE_PREFIX/static-workspace"
-          [ -f "$SRC/__spa-fallback.html" ] && cp -a "$SRC/__spa-fallback.html" "$DST/$SITE_PREFIX/__spa-fallback.html" || true
+      - name: verify-pages-root
+        run: test -f apps/infinitely-lengthy-tape/dist/client/index.html
 
       - name: upload-pages-artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ github.workspace }}/_site
+          path: apps/infinitely-lengthy-tape/dist/client
 
   deploy:
     needs: build
