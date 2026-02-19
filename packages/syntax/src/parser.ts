@@ -31,6 +31,7 @@ function exprAnn(expr: SExpr): SAnn {
     Hole: (ann) => ann,
     Data: (_constructors, ann) => ann,
     Proj: (_expr, _name, ann) => ann,
+    Variant: (_expr, ann) => ann,
   });
 }
 
@@ -117,7 +118,7 @@ export class Parser {
   /** Is the current token a synchronization point for list items? */
   private isSyncToken(): boolean {
     const t = this.current().token;
-    return !!(t.comma || t.rbrace || t.eof);
+    return !!(t.comma || t.pipe || t.rbrace || t.eof);
   }
 
   // ── Slashdash helper ───────────────────────────────────────────
@@ -271,14 +272,19 @@ export class Parser {
 
     const branches: SMatchBranch[] = [];
 
+    // Optional leading '|'
+    if (this.current().token.pipe) {
+      this.advance();
+    }
+
     if (!this.current().token.rbrace && !this.isAtEnd()) {
       // First branch
       this.tryParseBranch(branches);
 
-      // Subsequent branches separated by ','
-      while (this.current().token.comma) {
-        this.advance(); // consume ','
-        if (this.current().token.rbrace || this.isAtEnd()) break; // trailing comma
+      // Subsequent branches separated by '|'
+      while (this.current().token.pipe) {
+        this.advance(); // consume '|'
+        if (this.current().token.rbrace || this.isAtEnd()) break; // trailing '|'
         this.tryParseBranch(branches);
       }
     }
@@ -317,18 +323,31 @@ export class Parser {
   }
 
   private parsePattern(): SPattern {
-    const dotTok = this.expect((t) => !!t.token.dot, "'.'");
     const name = this.expectIdent();
+    const dotTok = this.expect((t) => !!t.token.dot, "'.'");
     const args: string[] = [];
-    while (this.current().token.ident || this.current().token.underscore) {
-      if (this.current().token.underscore) {
-        args.push('_');
-        this.advance();
-      } else {
-        args.push(this.expectIdent().value);
+    if (this.current().token.lparen) {
+      this.advance();
+      if (!this.current().token.rparen && !this.isAtEnd()) {
+        args.push(this.parsePatternBinding());
+        while (this.current().token.comma) {
+          this.advance();
+          if (this.current().token.rparen || this.isAtEnd()) break;
+          args.push(this.parsePatternBinding());
+        }
       }
+      const rp = this.expectOrInsert((t) => !!t.token.rparen, "')'");
+      return Pattern.Ctor(name.value, args, { span: this.span(name.ann.span, rp.span) });
     }
-    return Pattern.Ctor(name.value, args, { span: this.span(dotTok.span, name.ann.span) });
+    return Pattern.Ctor(name.value, args, { span: this.span(name.ann.span, dotTok.span) });
+  }
+
+  private parsePatternBinding(): string {
+    if (this.current().token.underscore) {
+      this.advance();
+      return '_';
+    }
+    return this.expectIdent().value;
   }
 
   // ── Pi / Arrow ─────────────────────────────────────────────────
@@ -344,8 +363,8 @@ export class Parser {
       }
     }
 
-    // Application, possibly followed by ->
-    const lhs = this.parseApp();
+    // Atom (with postfix call), possibly followed by ->
+    const lhs = this.parseAtom();
     if (this.current().token.arrow) {
       this.advance(); // consume '->'
       const rhs = this.parsePiOrArrow();
@@ -375,40 +394,60 @@ export class Parser {
     });
   }
 
-  // ── Application ────────────────────────────────────────────────
-
-  private parseApp(): SExpr {
-    let result = this.parseAtom();
-
-    while (this.isAtomStart()) {
-      const arg = this.parseAtom();
-      result = Expr.App(result, arg, {
-        span: this.span(exprAnn(result).span, exprAnn(arg).span),
-      });
-    }
-
-    return result;
-  }
-
-  private isAtomStart(): boolean {
-    const tok = this.current().token;
-    return !!(tok.ident || tok.Type || tok.lparen || tok.underscore || tok.data);
-  }
-
   // ── Atoms ──────────────────────────────────────────────────────
 
   private parseAtom(): SExpr {
     let result = this.parseAtomBase();
 
-    // Postfix dot projection: expr.name
-    while (this.current().token.dot && this.isIdentAfterDot()) {
-      this.advance(); // consume '.'
-      const name = this.expectIdent();
-      result = Expr.Proj(result, name, {
-        span: this.span(exprAnn(result).span, name.ann.span),
-      });
+    // Postfix loop: dot projection and call syntax
+    while (true) {
+      if (this.current().token.dot && this.isIdentAfterDot()) {
+        this.advance(); // consume '.'
+        const name = this.expectIdent();
+        result = Expr.Proj(result, name, {
+          span: this.span(exprAnn(result).span, name.ann.span),
+        });
+        continue;
+      }
+      if (this.current().token.dot && !this.isIdentAfterDot()) {
+        const dotTok = this.advance(); // consume '.'
+        result = Expr.Variant(result, {
+          span: this.span(exprAnn(result).span, dotTok.span),
+        });
+        continue;
+      }
+      if (this.current().token.lparen) {
+        result = this.parseCallArgs(result);
+        continue;
+      }
+      break;
     }
 
+    return result;
+  }
+
+  private parseCallArgs(func: SExpr): SExpr {
+    this.advance(); // consume '('
+    const args: SExpr[] = [];
+    if (!this.current().token.rparen && !this.isAtEnd()) {
+      args.push(this.parseExpr());
+      while (this.current().token.comma) {
+        this.advance();
+        if (this.current().token.rparen || this.isAtEnd()) break; // trailing comma
+        args.push(this.parseExpr());
+      }
+    }
+    const end = this.expectOrInsert((t) => !!t.token.rparen, "')'");
+    let result = func;
+    for (const arg of args) {
+      result = Expr.App(result, arg, {
+        span: this.span(exprAnn(func).span, end.span),
+      });
+    }
+    if (args.length === 0) {
+      // f() — no args, just return func as-is
+      return result;
+    }
     return result;
   }
 
@@ -465,15 +504,20 @@ export class Parser {
 
     const constructors: SDataCtor[] = [];
 
+    // Optional leading '|'
+    if (this.current().token.pipe) {
+      this.advance();
+    }
+
     // Check for empty data: `data {}`
     if (!this.current().token.rbrace && !this.isAtEnd()) {
       // First constructor
       this.tryParseDataCtor(constructors);
 
-      // Subsequent constructors separated by ','
-      while (this.current().token.comma) {
-        this.advance(); // consume ','
-        if (this.current().token.rbrace || this.isAtEnd()) break; // trailing comma
+      // Subsequent constructors separated by '|'
+      while (this.current().token.pipe) {
+        this.advance(); // consume '|'
+        if (this.current().token.rbrace || this.isAtEnd()) break; // trailing '|'
         this.tryParseDataCtor(constructors);
       }
     }
@@ -505,14 +549,14 @@ export class Parser {
   }
 
   private parseDataCtorItem(): SDataCtor {
-    const dotTok = this.expect((t) => !!t.token.dot, "'.'");
     const name = this.expectIdent();
+    const dotTok = this.expect((t) => !!t.token.dot, "'.'");
     const params = this.parseParams();
-    const endSpan = params.length > 0 ? params[params.length - 1]!.ann.span : name.ann.span;
+    const endSpan = params.length > 0 ? params[params.length - 1]!.ann.span : dotTok.span;
     return {
       name,
       params,
-      ann: { span: this.span(dotTok.span, endSpan) },
+      ann: { span: this.span(name.ann.span, endSpan) },
     };
   }
 }
@@ -534,6 +578,7 @@ function tokenDescription(tok: LocatedToken): string {
   if (t.lbrace) return "'{'";
   if (t.rbrace) return "'}'";
   if (t.comma) return "','";
+  if (t.pipe) return "'|'";
   if (t.underscore) return "'_'";
   if (t.slashdash) return "'/-'";
   if (t.ident) return `identifier '${t.ident[0]}'`;

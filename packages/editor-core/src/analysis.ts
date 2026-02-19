@@ -9,7 +9,7 @@ import type {
   SMatchBranch,
 } from '@edhit/core';
 import { parse, Lexer } from '@edhit/syntax';
-import { checkProgram, type TypeError, type DefInfo } from '@edhit/language';
+import { checkProgram, type TypeError, type DefInfo, type HoverEntry } from '@edhit/language';
 
 export interface ParseErrorInfo {
   pos: Pos;
@@ -39,6 +39,7 @@ export interface AnalysisResult {
   typeErrors: TypeError[];
   semanticTokens: SemanticToken[];
   defs: DefInfo[];
+  hoverEntries: HoverEntry[];
 }
 
 export function analyze(source: string): AnalysisResult {
@@ -62,6 +63,7 @@ export function analyze(source: string): AnalysisResult {
         semanticTokens.push({ offset, length, kind: 'operator' });
       } else if (
         tok.token.comma !== undefined ||
+        tok.token.pipe !== undefined ||
         tok.token.colon !== undefined ||
         tok.token.backslash !== undefined ||
         tok.token.dot !== undefined ||
@@ -93,15 +95,17 @@ export function analyze(source: string): AnalysisResult {
   // Type check
   let typeErrors: TypeError[] = [];
   let defs: DefInfo[] = [];
+  let hoverEntries: HoverEntry[] = [];
   try {
     const result = checkProgram(program);
     typeErrors = result.errors;
     defs = result.defs;
+    hoverEntries = result.hoverEntries;
   } catch {
     // Type checking failure is non-fatal
   }
 
-  return { source, program, parseErrors, typeErrors, semanticTokens, defs };
+  return { source, program, parseErrors, typeErrors, semanticTokens, defs, hoverEntries };
 }
 
 function addToken(tokens: SemanticToken[], span: Span, kind: SemanticKind): void {
@@ -185,6 +189,9 @@ function collectExprTokens(expr: SExpr, tokens: SemanticToken[]): void {
     Proj: (_expr, name, _ann) => {
       collectExprTokens(_expr, tokens);
       addToken(tokens, name.ann.span, 'constructor');
+    },
+    Variant: (innerExpr, _ann) => {
+      collectExprTokens(innerExpr, tokens);
     },
   });
 }

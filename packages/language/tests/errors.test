@@ -4,7 +4,7 @@ unresolved name: Foo
 
 ======
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
 def wrong : Nat := Type
 ---
@@ -12,33 +12,33 @@ type mismatch
 
 ======
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
-def bad : Nat := Nat.zero Nat.zero
+def bad : Nat := Nat.zero.(Nat.zero.)
 ---
 expected a function type
 
 ======
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
-def bad : Nat := (\x. x) Nat.zero
+def bad : Nat := (\x. x)(Nat.zero.)
 ---
 cannot infer type of lambda
 
 ======
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
-def bad : Nat := Nat.succ Nat.zero Nat.zero
+def bad : Nat := Nat.succ.(Nat.zero.)(Nat.zero.)
 ---
 expected a function type
 
 ======
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
-def bad : Type := Nat.zero
+def bad : Type := Nat.zero.
 ---
 type mismatch
 

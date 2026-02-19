@@ -1,0 +1,37 @@
+{
+  "name": "@edhit/notebook",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "lint": "oxlint",
+    "format": "oxfmt --write src"
+  },
+  "dependencies": {
+    "@edhit/editor-core": "workspace:*",
+    "@edhit/language": "workspace:*",
+    "@iconify/react": "^6.0.2",
+    "@myriaddreamin/typst-ts-renderer": "0.6.1-rc2",
+    "@myriaddreamin/typst-ts-web-compiler": "0.6.1-rc2",
+    "@myriaddreamin/typst.ts": "0.6.1-rc2",
+    "@tiptap/core": "^3.19.0",
+    "@tiptap/extension-link": "^3.19.0",
+    "@tiptap/extension-placeholder": "^3.19.0",
+    "@tiptap/pm": "^3.19.0",
+    "@tiptap/react": "^3.19.0",
+    "@tiptap/starter-kit": "^3.19.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.8.0"
+  }
+}

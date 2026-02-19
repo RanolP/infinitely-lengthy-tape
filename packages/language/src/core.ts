@@ -7,7 +7,7 @@ export interface CoreBranchF<Ann> {
 export type CoreExprF<Ann> =
   | { tag: 'Var'; index: number; ann: Ann }
   | { tag: 'Global'; name: string; ann: Ann }
-  | { tag: 'App'; func: CoreExprF<Ann>; arg: CoreExprF<Ann>; ann: Ann }
+  | { tag: 'app'; func: CoreExprF<Ann>; arg: CoreExprF<Ann>; ann: Ann }
   | { tag: 'Lam'; name: string; body: CoreExprF<Ann>; ann: Ann }
   | {
       tag: 'Pi';
@@ -25,13 +25,14 @@ export type CoreExprF<Ann> =
     }
   | { tag: 'Ctor'; dataName: string; ctorName: string; ann: Ann }
   | { tag: 'Proj'; expr: CoreExprF<Ann>; name: string; ann: Ann }
+  | { tag: 'UnresolvedCtor'; name: string; ann: Ann }
   | { tag: 'Error'; ann: Ann };
 
 export const CoreExpr = {
   Var: <A>(index: number, ann: A): CoreExprF<A> => ({ tag: 'Var', index, ann }),
   Global: <A>(name: string, ann: A): CoreExprF<A> => ({ tag: 'Global', name, ann }),
   App: <A>(func: CoreExprF<A>, arg: CoreExprF<A>, ann: A): CoreExprF<A> => ({
-    tag: 'App',
+    tag: 'app',
     func,
     arg,
     ann,
@@ -63,6 +64,11 @@ export const CoreExpr = {
   Proj: <A>(expr: CoreExprF<A>, name: string, ann: A): CoreExprF<A> => ({
     tag: 'Proj',
     expr,
+    name,
+    ann,
+  }),
+  UnresolvedCtor: <A>(name: string, ann: A): CoreExprF<A> => ({
+    tag: 'UnresolvedCtor',
     name,
     ann,
   }),

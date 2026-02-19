@@ -11,8 +11,11 @@ export function prettyCore(
     }
     case 'Global':
       return expr.name;
-    case 'App':
-      return `${prettyCore(expr.func, names)} ${wrapArg(expr.arg, names)}`;
+    case 'app': {
+      const { func, args } = uncurryApp(expr);
+      const argStrs = args.map((a) => prettyCore(a, names));
+      return `${wrapAtom(func, names)}(${argStrs.join(', ')})`;
+    }
     case 'Lam': {
       const inner = names.concat(expr.name);
       return `\\${expr.name}. ${prettyCore(expr.body, inner)}`;
@@ -30,12 +33,24 @@ export function prettyCore(
     case 'Match':
       return prettyMatch(expr.scrutinee, expr.branches, names);
     case 'Ctor':
-      return `${expr.dataName}.${expr.ctorName}`;
+      return `${expr.dataName}.${expr.ctorName}.`;
     case 'Proj':
-      return `${wrapArg(expr.expr, names)}.${expr.name}`;
+      return `${wrapAtom(expr.expr, names)}.${expr.name}`;
+    case 'UnresolvedCtor':
+      return `${expr.name}.`;
     case 'Error':
       return '<error>';
   }
+}
+
+function uncurryApp(expr: CoreExprF<unknown>): { func: CoreExprF<unknown>; args: CoreExprF<unknown>[] } {
+  const args: CoreExprF<unknown>[] = [];
+  let cur = expr;
+  while (cur.tag === 'app') {
+    args.unshift(cur.arg);
+    cur = cur.func;
+  }
+  return { func: cur, args };
 }
 
 function isAtom(expr: CoreExprF<unknown>): boolean {
@@ -44,6 +59,8 @@ function isAtom(expr: CoreExprF<unknown>): boolean {
     case 'Global':
     case 'Type':
     case 'Ctor':
+    case 'Proj':
+    case 'UnresolvedCtor':
     case 'Error':
       return true;
     default:
@@ -51,8 +68,8 @@ function isAtom(expr: CoreExprF<unknown>): boolean {
   }
 }
 
-function wrapArg(expr: CoreExprF<unknown>, names: string[]): string {
-  if (isAtom(expr)) return prettyCore(expr, names);
+function wrapAtom(expr: CoreExprF<unknown>, names: string[]): string {
+  if (isAtom(expr) || expr.tag === 'app') return prettyCore(expr, names);
   return `(${prettyCore(expr, names)})`;
 }
 
@@ -73,8 +90,8 @@ function prettyMatch(
   }
   const branchStrs = branches.map((b) => {
     const inner = names.concat(b.bindings);
-    const bindings = b.bindings.length > 0 ? ' ' + b.bindings.join(' ') : '';
-    return `.${b.ctorName}${bindings} => ${prettyCore(b.body, inner)}`;
+    const bindings = b.bindings.length > 0 ? `(${b.bindings.join(', ')})` : '';
+    return `${b.ctorName}.${bindings} => ${prettyCore(b.body, inner)}`;
   });
-  return `match ${prettyCore(scrutinee, names)} { ${branchStrs.join(', ')} }`;
+  return `match ${prettyCore(scrutinee, names)} { ${branchStrs.map((s) => '| ' + s).join(' ')} }`;
 }

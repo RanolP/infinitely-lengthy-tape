@@ -1,28 +1,28 @@
-def Bool := data { .true, .false }
+def Bool := data { true. | false. }
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
 def boolToNat (b : Bool) : Nat :=
   match b {
-    .true => Nat.zero,
-    .false => Nat.succ Nat.zero
+    | true. => Nat.zero.
+    | false. => Nat.succ.(Nat.zero.)
   }
 
 ======
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
-def Bool := data { .true, .false }
+def Bool := data { true. | false. }
 
 def isZero (n : Nat) : Bool :=
   match n {
-    .zero => Bool.true,
-    .succ m => Bool.false
+    | zero. => Bool.true.
+    | succ.(m) => Bool.false.
   }
 
 ======
 
-def Bool := data { .true, .false }
+def Bool := data { true. | false. }
 
 def bad (b : Bool) : Bool :=
   match b {}

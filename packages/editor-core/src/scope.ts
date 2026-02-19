@@ -22,12 +22,13 @@ export function collectScopeAtOffset(program: SProgram, offset: number): ScopeEn
     }
   }
 
-  // Collect globals from all preceding declarations
+  // Collect globals and constructors from all preceding declarations
   const limit = containingDeclIndex === -1 ? program.items.length : containingDeclIndex;
   for (let i = 0; i < limit; i++) {
     const item = program.items[i]!;
     if (item.kind === 'decl') {
       collectDeclName(item.value, scope);
+      collectDeclConstructors(item.value, scope);
     }
   }
 
@@ -58,6 +59,32 @@ function collectDeclName(decl: SDecl, scope: ScopeEntry[]): void {
   });
 }
 
+function collectDeclConstructors(decl: SDecl, scope: ScopeEntry[]): void {
+  decl.match({
+    Def: (_name, _params, _returnTy, body, _ann) => {
+      body.match({
+        Data: (constructors, _ann) => {
+          for (const ctor of constructors) {
+            if (ctor.name.value) {
+              scope.push({ name: ctor.name.value, kind: 'constructor' });
+            }
+          }
+        },
+        Var: () => {},
+        App: () => {},
+        Lam: () => {},
+        Pi: () => {},
+        Arrow: () => {},
+        Type: () => {},
+        Match: () => {},
+        Hole: () => {},
+        Proj: () => {},
+        Variant: () => {},
+      });
+    },
+  });
+}
+
 function collectDeclScope(decl: SDecl, offset: number, scope: ScopeEntry[]): void {
   decl.match({
     Def: (name, params, returnTy, body, _ann) => {
@@ -67,18 +94,7 @@ function collectDeclScope(decl: SDecl, offset: number, scope: ScopeEntry[]): voi
       }
 
       // If offset is in the body or return type, all params are in scope
-      const inBody = spanContains(body.match({
-        Var: (_n, ann) => ann.span,
-        App: (_f, _a, ann) => ann.span,
-        Lam: (_p, _b, ann) => ann.span,
-        Pi: (_p, _b, ann) => ann.span,
-        Arrow: (_d, _c, ann) => ann.span,
-        Type: (ann) => ann.span,
-        Match: (_s, _b, ann) => ann.span,
-        Hole: (ann) => ann.span,
-        Data: (_c, ann) => ann.span,
-        Proj: (_e, _n, ann) => ann.span,
-      }), offset);
+      const inBody = spanContains(getExprSpan(body), offset);
 
       const inReturnTy = returnTy !== null && spanContains(getExprSpan(returnTy), offset);
 
@@ -192,9 +208,115 @@ function collectExprScope(expr: SExpr, offset: number, scope: ScopeEntry[]): voi
         collectExprScope(innerExpr, offset, scope);
       }
     },
+    Variant: (innerExpr, _ann) => {
+      if (spanContains(getExprSpan(innerExpr), offset)) {
+        collectExprScope(innerExpr, offset, scope);
+      }
+    },
     Var: () => {},
     Type: () => {},
     Hole: () => {},
+  });
+}
+
+export interface MatchPatternContext {
+  scrutineeSpan: Span;
+}
+
+/**
+ * Check if the given offset is in a match pattern position (inside match braces
+ * but not in the scrutinee or a branch body).
+ */
+export function findMatchPatternContext(program: SProgram, offset: number): MatchPatternContext | null {
+  for (const item of program.items) {
+    if (!spanContains(item.ann.span, offset)) continue;
+    if (item.kind === 'decl') {
+      const result = findMatchInDecl(item.value, offset);
+      if (result) return result;
+    } else {
+      const result = findMatchInExpr(item.value, offset);
+      if (result) return result;
+    }
+  }
+  return null;
+}
+
+function findMatchInDecl(decl: SDecl, offset: number): MatchPatternContext | null {
+  return decl.match({
+    Def: (_name, params, returnTy, body, _ann) => {
+      for (const param of params) {
+        if (spanContains(param.ann.span, offset)) {
+          return findMatchInExpr(param.ty, offset);
+        }
+      }
+      if (returnTy !== null && spanContains(getExprSpan(returnTy), offset)) {
+        return findMatchInExpr(returnTy, offset);
+      }
+      if (spanContains(getExprSpan(body), offset)) {
+        return findMatchInExpr(body, offset);
+      }
+      return null;
+    },
+  });
+}
+
+function findMatchInExpr(expr: SExpr, offset: number): MatchPatternContext | null {
+  return expr.match({
+    Match: (scrutinee, branches, ann) => {
+      // If offset is in scrutinee, recurse into scrutinee
+      if (spanContains(getExprSpan(scrutinee), offset)) {
+        return findMatchInExpr(scrutinee, offset);
+      }
+      // Check if offset is in any branch body
+      for (const branch of branches) {
+        if (spanContains(getExprSpan(branch.body), offset)) {
+          return findMatchInExpr(branch.body, offset);
+        }
+      }
+      // Offset is in match span but not in scrutinee or branch bodies → pattern position
+      if (spanContains(ann.span, offset)) {
+        return { scrutineeSpan: getExprSpan(scrutinee) };
+      }
+      return null;
+    },
+    App: (func, arg, _ann) => {
+      if (spanContains(getExprSpan(func), offset)) return findMatchInExpr(func, offset);
+      if (spanContains(getExprSpan(arg), offset)) return findMatchInExpr(arg, offset);
+      return null;
+    },
+    Lam: (_param, body, _ann) => {
+      if (spanContains(getExprSpan(body), offset)) return findMatchInExpr(body, offset);
+      return null;
+    },
+    Pi: (param, body, _ann) => {
+      if (spanContains(param.ann.span, offset)) return findMatchInExpr(param.ty, offset);
+      if (spanContains(getExprSpan(body), offset)) return findMatchInExpr(body, offset);
+      return null;
+    },
+    Arrow: (domain, codomain, _ann) => {
+      if (spanContains(getExprSpan(domain), offset)) return findMatchInExpr(domain, offset);
+      if (spanContains(getExprSpan(codomain), offset)) return findMatchInExpr(codomain, offset);
+      return null;
+    },
+    Data: (constructors, _ann) => {
+      for (const ctor of constructors) {
+        for (const param of ctor.params) {
+          if (spanContains(param.ann.span, offset)) return findMatchInExpr(param.ty, offset);
+        }
+      }
+      return null;
+    },
+    Proj: (innerExpr, _name, _ann) => {
+      if (spanContains(getExprSpan(innerExpr), offset)) return findMatchInExpr(innerExpr, offset);
+      return null;
+    },
+    Variant: (innerExpr, _ann) => {
+      if (spanContains(getExprSpan(innerExpr), offset)) return findMatchInExpr(innerExpr, offset);
+      return null;
+    },
+    Var: () => null,
+    Type: () => null,
+    Hole: () => null,
   });
 }
 
@@ -210,5 +332,6 @@ function getExprSpan(expr: SExpr): Span {
     Hole: (ann: SAnn) => ann.span,
     Data: (_c, ann: SAnn) => ann.span,
     Proj: (_e, _n, ann: SAnn) => ann.span,
+    Variant: (_e, ann: SAnn) => ann.span,
   });
 }

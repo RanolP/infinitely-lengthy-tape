@@ -15,5 +15,5 @@ export {
 } from './context.js';
 export { elaborateExpr } from './elaborate.js';
 export { type TAnn, infer, check } from './check.js';
-export { type DefInfo, type CheckResult, checkSource, checkProgram } from './engine.js';
+export { type DefInfo, type HoverEntry, type CheckResult, checkSource, checkProgram } from './engine.js';
 export { prettyCore } from './pretty.js';

@@ -20,6 +20,7 @@ interface TExprF<Ann> {
   Hole(ann: Ann): ExprF<Ann>;
   Data(constructors: DataCtorF<Ann>[], ann: Ann): ExprF<Ann>;
   Proj(expr: ExprF<Ann>, name: Annotated<string, Ann>, ann: Ann): ExprF<Ann>;
+  Variant(expr: ExprF<Ann>, ann: Ann): ExprF<Ann>;
 }
 
 interface IExprF<_Ann> {}
@@ -46,4 +47,6 @@ export const Expr = {
     ExprCtor<A>().Data(constructors, ann),
   Proj: <A>(expr: ExprF<A>, name: Annotated<string, A>, ann: A): ExprF<A> =>
     ExprCtor<A>().Proj(expr, name, ann),
+  Variant: <A>(expr: ExprF<A>, ann: A): ExprF<A> =>
+    ExprCtor<A>().Variant(expr, ann),
 };

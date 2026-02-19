@@ -27,43 +27,79 @@ def swap (A : Type) (B : Type) (x : A) (y : B) : B := y
 
 ======
 
-def apply (A : Type) (B : Type) (f : A -> B) (x : A) : B := f x
+def apply (A : Type) (B : Type) (f : A -> B) (x : A) : B := f(x)
 
 ======
 
-def compose (A : Type) (B : Type) (C : Type) (f : B -> C) (g : A -> B) (x : A) : C := f (g x)
+def compose (A : Type) (B : Type) (C : Type) (f : B -> C) (g : A -> B) (x : A) : C := f(g(x))
 
 ======
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
-def zero : Nat := Nat.zero
-
-======
-
-def Nat := data { .zero, .succ (_ : Nat) }
-
-def one : Nat := Nat.succ Nat.zero
+def zero : Nat := Nat.zero.
 
 ======
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
-def two : Nat := Nat.succ (Nat.succ Nat.zero)
-
-======
-
-def Nat := data { .zero, .succ (_ : Nat) }
-
-def three : Nat := Nat.succ (Nat.succ (Nat.succ Nat.zero))
+def one : Nat := Nat.succ.(Nat.zero.)
 
 ======
 
-def Nat := data { .zero, .succ (_ : Nat) }
+def Nat := data { zero. | succ. (_ : Nat) }
 
-def succ : Nat -> Nat := \n. Nat.succ n
+def two : Nat := Nat.succ.(Nat.succ.(Nat.zero.))
+
+======
+
+def Nat := data { zero. | succ. (_ : Nat) }
+
+def three : Nat := Nat.succ.(Nat.succ.(Nat.succ.(Nat.zero.)))
+
+======
+
+def Nat := data { zero. | succ. (_ : Nat) }
+
+def succ : Nat -> Nat := \n. Nat.succ.(n)
 
 ======
 
 def Type2 : Type := Type
 def shadow (Type2 : Type) : Type := Type2
+
+======
+
+def Nat := data { zero. | succ. (_ : Nat) }
+
+def add (n : Nat) (m : Nat) : Nat :=
+  match n {
+    | zero. => m
+    | succ.(k) => Nat.succ.(add(k)(m))
+  }
+
+======
+
+def Nat := data { zero. | succ. (_ : Nat) }
+
+def add (n : Nat) (m : Nat) : Nat :=
+  match n {
+    | zero. => m
+    | succ.(k) => Nat.succ.(add(k)(m))
+  }
+
+def two : Nat := add(Nat.succ.(Nat.zero.))(Nat.succ.(Nat.zero.))
+
+======
+
+def Nat := data { zero. | succ. (_ : Nat) }
+
+def add (n : Nat) (m : Nat) : Nat :=
+  match n {
+    | zero. => m
+    | succ.(k) => Nat.succ.(add(k)(m))
+  }
+
+def Eq (A : Type) (x : A) (y : A) := data { refl. }
+
+def comm (n : Nat) (m : Nat) : Eq(Nat)(add(n)(m))(add(m)(n)) := refl.

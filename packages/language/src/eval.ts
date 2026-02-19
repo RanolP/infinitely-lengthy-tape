@@ -12,7 +12,7 @@ export function evaluate(env: Env, expr: CoreExprF<unknown>): Value {
         throw new Error(`unresolved global: ${expr.name}`);
       });
 
-    case 'App': {
+    case 'app': {
       const func = evaluate(env, expr.func);
       const arg = evaluate(env, expr.arg);
       return vApp(func, arg);
@@ -39,6 +39,10 @@ export function evaluate(env: Env, expr: CoreExprF<unknown>): Value {
 
     case 'Proj':
       // Type checker rewrites Proj to Ctor, so this shouldn't normally be reached
+      return Value.VError();
+
+    case 'UnresolvedCtor':
+      // Should be resolved during type checking
       return Value.VError();
 
     case 'Error':

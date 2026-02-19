@@ -100,6 +100,31 @@ function elabExpr(ctx: Context, scope: ElabScope, expr: SExpr): CoreExprF<SAnn> 
       const cExpr = elabExpr(ctx, scope, innerExpr);
       return CoreExpr.Proj(cExpr, name.value, ann);
     },
+
+    Variant: (innerExpr, ann) =>
+      innerExpr.match({
+        // Qualified: Nat.zero. → Ctor("Nat", "zero")
+        Proj: (projExpr, name, _projAnn) => {
+          const cInner = elabExpr(ctx, scope, projExpr);
+          if (cInner.tag === 'Global' && ctx.dataTypes.has(cInner.name)) {
+            return CoreExpr.Ctor(cInner.name, name.value, ann);
+          }
+          reportError(ctx, ann.span, 'qualified variant requires a data type');
+          return CoreExpr.Error(ann);
+        },
+        // Unqualified: zero. → UnresolvedCtor("zero")
+        Var: (name, _varAnn) => CoreExpr.UnresolvedCtor(name, ann),
+        // Other shapes are invalid
+        App: (_f, _a, _a2) => { reportError(ctx, ann.span, 'invalid variant expression'); return CoreExpr.Error(ann); },
+        Lam: (_p, _b, _a2) => { reportError(ctx, ann.span, 'invalid variant expression'); return CoreExpr.Error(ann); },
+        Pi: (_p, _b, _a2) => { reportError(ctx, ann.span, 'invalid variant expression'); return CoreExpr.Error(ann); },
+        Arrow: (_d, _c, _a2) => { reportError(ctx, ann.span, 'invalid variant expression'); return CoreExpr.Error(ann); },
+        Type: (_a2) => { reportError(ctx, ann.span, 'invalid variant expression'); return CoreExpr.Error(ann); },
+        Match: (_s, _b, _a2) => { reportError(ctx, ann.span, 'invalid variant expression'); return CoreExpr.Error(ann); },
+        Hole: (_a2) => { reportError(ctx, ann.span, 'invalid variant expression'); return CoreExpr.Error(ann); },
+        Data: (_c, _a2) => { reportError(ctx, ann.span, 'invalid variant expression'); return CoreExpr.Error(ann); },
+        Variant: (_e, _a2) => { reportError(ctx, ann.span, 'invalid variant expression'); return CoreExpr.Error(ann); },
+      }),
   });
 }
 

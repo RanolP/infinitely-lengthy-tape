@@ -6,7 +6,8 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "format": "turbo format",
-    "check": "turbo lint format"
+    "check": "turbo lint format",
+    "dev": "pnpm --filter @edhit/infinitely-lengthy-tape dev"
   },
   "pnpm": {
     "onlyBuiltDependencies": ["esbuild"]

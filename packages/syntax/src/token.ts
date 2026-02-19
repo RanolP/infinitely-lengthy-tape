@@ -16,6 +16,7 @@ export type Token = {
   lbrace?: [];
   rbrace?: [];
   comma?: [];
+  pipe?: [];
   underscore?: [];
   slashdash?: [];
   ident?: [name: string];
@@ -42,6 +43,7 @@ export const Token = {
   lbrace: (): Token => tok('lbrace'),
   rbrace: (): Token => tok('rbrace'),
   comma: (): Token => tok('comma'),
+  pipe: (): Token => tok('pipe'),
   underscore: (): Token => tok('underscore'),
   slashdash: (): Token => tok('slashdash'),
   ident: (name: string): Token => tok('ident', name),

@@ -12,6 +12,7 @@ const KEYWORDS: Record<string, () => Token> = {
 function isReservedChar(ch: string): boolean {
   switch (ch) {
     case ',':
+    case '|':
     case ':':
     case '\\':
     case '.':
@@ -156,6 +157,10 @@ export class Lexer {
       if (ch === ',') {
         this.advance();
         return { span: { start, end: this.pos() }, token: Token.comma() };
+      }
+      if (ch === '|') {
+        this.advance();
+        return { span: { start, end: this.pos() }, token: Token.pipe() };
       }
       if (ch === ':') {
         this.advance();

@@ -7,7 +7,7 @@ import {
   type CtorInfo,
   emptyContext,
 } from './context.js';
-import { check, infer } from './check.js';
+import { check, infer, type TAnn } from './check.js';
 import { elaborateExpr } from './elaborate.js';
 import { evaluate, quote } from './eval.js';
 import type { TypeError } from './error.js';
@@ -22,9 +22,15 @@ export interface DefInfo {
   constructors: { name: string; type: string }[];
 }
 
+export interface HoverEntry {
+  span: Span;
+  type: string;
+}
+
 export interface CheckResult {
   errors: TypeError[];
   defs: DefInfo[];
+  hoverEntries: HoverEntry[];
 }
 
 export function checkSource(source: string): CheckResult {
@@ -35,16 +41,27 @@ export function checkSource(source: string): CheckResult {
 export function checkProgram(program: SProgram): CheckResult {
   let ctx = emptyContext();
   const defs: DefInfo[] = [];
+  const hoverEntries: HoverEntry[] = [];
 
   for (const item of program.items) {
     if (item.kind === 'decl') {
       const prevCtx = ctx;
-      ctx = checkDecl(ctx, item.value);
+      const declResult = checkDeclWithBody(ctx, item.value);
+      ctx = declResult.ctx;
       collectDefInfo(item.value, prevCtx, ctx, defs);
+
+      if (declResult.typedBody !== null) {
+        collectHoverEntries(
+          declResult.typedBody,
+          declResult.bodyLvl,
+          declResult.bodyNames,
+          hoverEntries,
+        );
+      }
     }
   }
 
-  return { errors: ctx.errors, defs };
+  return { errors: ctx.errors, defs, hoverEntries };
 }
 
 function collectDefInfo(
@@ -92,13 +109,25 @@ function collectDefInfo(
   });
 }
 
-function checkDecl(ctx: Context, decl: SDecl): Context {
+interface DeclResult {
+  ctx: Context;
+  typedBody: CoreExprF<TAnn> | null;
+  bodyLvl: number;
+  bodyNames: string[];
+}
+
+function checkDeclWithBody(ctx: Context, decl: SDecl): DeclResult {
   return decl.match({
     Def: (name, params, returnTy, body, ann) => {
       if (isDataExpr(body)) {
-        return checkDataDef(ctx, name.value, params, returnTy, body, ann);
+        return {
+          ctx: checkDataDef(ctx, name.value, params, returnTy, body, ann),
+          typedBody: null,
+          bodyLvl: 0,
+          bodyNames: [],
+        };
       }
-      return checkDefDecl(ctx, name.value, params, returnTy, body, ann);
+      return checkDefDeclWithBody(ctx, name.value, params, returnTy, body, ann);
     },
   });
 }
@@ -115,6 +144,7 @@ function isDataExpr(expr: SExpr): boolean {
     Match: () => false,
     Hole: () => false,
     Proj: () => false,
+    Variant: () => false,
   });
 }
 
@@ -138,6 +168,7 @@ function checkDataDef(
     Match: () => [],
     Hole: () => [],
     Proj: () => [],
+    Variant: () => [],
   });
 
   let innerCtx = ctx;
@@ -265,22 +296,24 @@ function checkDataDef(
   };
 }
 
-function checkDefDecl(
+function checkDefDeclWithBody(
   ctx: Context,
   name: string,
   params: import('@edhit/core').ParamF<SAnn>[],
   returnTy: SExpr | null,
   body: import('@edhit/core').ExprF<SAnn>,
   _ann: SAnn,
-): Context {
+): DeclResult {
   let innerCtx = ctx;
+  const paramCores: { name: string; cTy: CoreExprF<unknown> }[] = [];
 
-  // Elaborate and check params
+  // Elaborate and check params, collecting core type expressions
   for (const param of params) {
     const cParamTy = elaborateExpr(innerCtx, param.ty);
     check(innerCtx, cParamTy, Value.VType());
     const paramTyVal = evaluate(innerCtx.env, cParamTy as CoreExprF<unknown>);
 
+    paramCores.push({ name: param.name.value, cTy: cParamTy as CoreExprF<unknown> });
     const freshVar = Value.VNeutral(paramTyVal, Neutral.NVar(innerCtx.lvl));
     innerCtx = {
       ...innerCtx,
@@ -297,27 +330,123 @@ function checkDefDecl(
     check(innerCtx, cReturnTy, Value.VType());
     const returnTyVal = evaluate(innerCtx.env, cReturnTy as CoreExprF<unknown>);
 
+    // Build full function type: (p1 : T1) → ... → RetTy
+    let fullTypeExpr: CoreExprF<unknown> = cReturnTy as CoreExprF<unknown>;
+    for (let i = paramCores.length - 1; i >= 0; i--) {
+      const p = paramCores[i]!;
+      fullTypeExpr = CoreExpr.Pi(p.name, p.cTy, fullTypeExpr, null);
+    }
+    const fullTy = evaluate(ctx.env, fullTypeExpr);
+
+    // Add self-reference for recursion support (requires return type annotation)
+    const bodyCtx: Context = {
+      ...innerCtx,
+      globals: new Map(innerCtx.globals).set(name, {
+        ty: fullTy,
+        val: Value.VGlobal(name, [], () => {
+          throw new Error(`recursive reference to ${name} during evaluation`);
+        }),
+      }),
+    };
+
     // Elaborate and check body against return type
-    const cBody = elaborateExpr(innerCtx, body);
-    check(innerCtx, cBody, returnTyVal);
-    const bodyVal = evaluate(innerCtx.env, cBody as CoreExprF<unknown>);
+    const cBody = elaborateExpr(bodyCtx, body);
+    const typedBody = check(bodyCtx, cBody, returnTyVal);
+
+    // Build full value: \p1. \p2. ... body
+    let fullBodyExpr: CoreExprF<unknown> = typedBody as CoreExprF<unknown>;
+    for (let i = paramCores.length - 1; i >= 0; i--) {
+      fullBodyExpr = CoreExpr.Lam(paramCores[i]!.name, fullBodyExpr, null);
+    }
+    const bodyVal = evaluate(ctx.env, fullBodyExpr);
 
     return {
-      ...ctx,
-      globals: new Map(ctx.globals).set(name, { ty: returnTyVal, val: bodyVal }),
-      errors: innerCtx.errors,
+      ctx: {
+        ...ctx,
+        globals: new Map(ctx.globals).set(name, { ty: fullTy, val: bodyVal }),
+        errors: bodyCtx.errors,
+      },
+      typedBody,
+      bodyLvl: innerCtx.lvl,
+      bodyNames: paramCores.map((p) => p.name),
     };
   } else {
-    // No return type — infer from body
+    // No return type — infer from body (no recursion support)
     const cBody = elaborateExpr(innerCtx, body);
     const result = infer(innerCtx, cBody);
-    const bodyVal = evaluate(innerCtx.env, result.expr as CoreExprF<unknown>);
+
+    // Build full function type and value with param wrappers
+    const quotedRetTy = quote(innerCtx.lvl, result.ty) as CoreExprF<unknown>;
+    let fullTypeExpr: CoreExprF<unknown> = quotedRetTy;
+    for (let i = paramCores.length - 1; i >= 0; i--) {
+      const p = paramCores[i]!;
+      fullTypeExpr = CoreExpr.Pi(p.name, p.cTy, fullTypeExpr, null);
+    }
+    const fullTy = evaluate(ctx.env, fullTypeExpr);
+
+    let fullBodyExpr: CoreExprF<unknown> = result.expr as CoreExprF<unknown>;
+    for (let i = paramCores.length - 1; i >= 0; i--) {
+      fullBodyExpr = CoreExpr.Lam(paramCores[i]!.name, fullBodyExpr, null);
+    }
+    const bodyVal = evaluate(ctx.env, fullBodyExpr);
 
     return {
-      ...ctx,
-      globals: new Map(ctx.globals).set(name, { ty: result.ty, val: bodyVal }),
-      errors: innerCtx.errors,
+      ctx: {
+        ...ctx,
+        globals: new Map(ctx.globals).set(name, { ty: fullTy, val: bodyVal }),
+        errors: innerCtx.errors,
+      },
+      typedBody: result.expr,
+      bodyLvl: innerCtx.lvl,
+      bodyNames: paramCores.map((p) => p.name),
     };
+  }
+}
+
+function collectHoverEntries(
+  expr: CoreExprF<TAnn>,
+  lvl: number,
+  names: string[],
+  entries: HoverEntry[],
+): void {
+  if (expr.ann.span.start.offset === expr.ann.span.end.offset) return;
+
+  const quoted = quote(lvl, expr.ann.ty);
+  entries.push({
+    span: expr.ann.span,
+    type: prettyCore(quoted, names),
+  });
+
+  switch (expr.tag) {
+    case 'Var':
+    case 'Global':
+    case 'Type':
+    case 'Ctor':
+    case 'UnresolvedCtor':
+    case 'Error':
+      break;
+    case 'app':
+      collectHoverEntries(expr.func, lvl, names, entries);
+      collectHoverEntries(expr.arg, lvl, names, entries);
+      break;
+    case 'Lam':
+      collectHoverEntries(expr.body, lvl + 1, names.concat(expr.name), entries);
+      break;
+    case 'Pi':
+      collectHoverEntries(expr.domain, lvl, names, entries);
+      collectHoverEntries(expr.codomain, lvl + 1, names.concat(expr.name), entries);
+      break;
+    case 'Proj':
+      collectHoverEntries(expr.expr, lvl, names, entries);
+      break;
+    case 'Match':
+      collectHoverEntries(expr.scrutinee, lvl, names, entries);
+      for (const branch of expr.branches) {
+        const branchLvl = lvl + branch.bindings.length;
+        const branchNames = names.concat(branch.bindings);
+        collectHoverEntries(branch.body, branchLvl, branchNames, entries);
+      }
+      break;
   }
 }
 

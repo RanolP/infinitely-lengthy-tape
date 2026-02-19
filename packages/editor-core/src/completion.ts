@@ -19,13 +19,13 @@ const snippetCompletions: CompletionItem[] = [
     kind: 'snippet',
     label: 'match',
     detail: 'Pattern match',
-    insertText: 'match _ { ._ => _ }',
+    insertText: 'match _ { | _. => _ }',
   },
   {
     kind: 'snippet',
     label: 'data',
     detail: 'Data type',
-    insertText: 'data { ._ , ._ }',
+    insertText: 'data { _. | _. }',
   },
   {
     kind: 'snippet',
@@ -62,9 +62,12 @@ export function levenshtein(a: string, b: string): number {
   return dp[lb]!;
 }
 
+export type CompletionContext = 'define' | 'use';
+
 export function collectCompletions(
   prefix: string,
   scope: ScopeEntry[] = [],
+  context: CompletionContext = 'use',
 ): CompletionItem[] {
   const items: CompletionItem[] = [];
 
@@ -78,53 +81,56 @@ export function collectCompletions(
   // Scope entries (variables, globals, constructors)
   for (const entry of scope) {
     if (fuzzyMatch(prefix, entry.name)) {
+      const suffix = entry.kind === 'constructor' ? '.' : '';
       items.push({
         kind: 'scope',
-        label: entry.name,
+        label: entry.name + suffix,
         detail: entry.kind,
-        insertText: entry.name,
+        insertText: entry.name + suffix,
       });
     }
   }
 
-  // Symbol completions (unicode symbols)
-  if (prefix.length >= 2) {
-    for (const sym of symbols) {
-      if (fuzzyMatch(prefix, sym.name)) {
-        items.push({
-          kind: 'symbol',
-          label: sym.name,
-          detail: sym.char,
-          insertText: sym.char,
-        });
-      }
-    }
-  }
-
-  // Bold/italic styled variants via suffix
-  const lastDot = prefix.lastIndexOf('.');
-  if (lastDot >= 1) {
-    const basePart = prefix.slice(0, lastDot);
-    const suffixPart = prefix.slice(lastDot + 1);
-
-    const styles: { names: string[]; tag: string }[] = [
-      { names: ['bold', 'b'], tag: 'b' },
-      { names: ['italic', 'i'], tag: 'i' },
-    ];
-
-    for (const sym of symbols) {
-      if (!fuzzyMatch(basePart, sym.name)) continue;
-
-      for (const { names, tag } of styles) {
-        for (const name of names) {
-          if (!fuzzyMatch(suffixPart, name)) continue;
-          const styledText = `<${tag}>${sym.char}</${tag}>`;
+  // Symbol completions (unicode symbols) — only when defining a new name
+  if (context === 'define') {
+    if (prefix.length >= 2) {
+      for (const sym of symbols) {
+        if (fuzzyMatch(prefix, sym.name)) {
           items.push({
             kind: 'symbol',
-            label: `${sym.name}.${name}`,
+            label: sym.name,
             detail: sym.char,
-            insertText: styledText,
+            insertText: sym.char,
           });
+        }
+      }
+    }
+
+    // Bold/italic styled variants via suffix
+    const lastDot = prefix.lastIndexOf('.');
+    if (lastDot >= 1) {
+      const basePart = prefix.slice(0, lastDot);
+      const suffixPart = prefix.slice(lastDot + 1);
+
+      const styles: { names: string[]; tag: string }[] = [
+        { names: ['bold', 'b'], tag: 'b' },
+        { names: ['italic', 'i'], tag: 'i' },
+      ];
+
+      for (const sym of symbols) {
+        if (!fuzzyMatch(basePart, sym.name)) continue;
+
+        for (const { names, tag } of styles) {
+          for (const name of names) {
+            if (!fuzzyMatch(suffixPart, name)) continue;
+            const styledText = `<${tag}>${sym.char}</${tag}>`;
+            items.push({
+              kind: 'symbol',
+              label: `${sym.name}.${name}`,
+              detail: sym.char,
+              insertText: styledText,
+            });
+          }
         }
       }
     }

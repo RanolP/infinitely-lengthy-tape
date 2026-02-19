@@ -3,6 +3,7 @@ import { CoreExpr, type CoreBranchF, type CoreExprF } from './core.js';
 import { bind, reportError, type Context } from './context.js';
 import { closureApply } from './env.js';
 import { conv, evaluate, quote } from './eval.js';
+import { prettyCore } from './pretty.js';
 import { Neutral, Value } from './value.js';
 
 export interface TAnn {
@@ -44,7 +45,7 @@ export function infer(ctx: Context, expr: CoreExprF<SAnn>): { expr: CoreExprF<TA
       };
     }
 
-    case 'App': {
+    case 'app': {
       const funcResult = infer(ctx, expr.func);
       const funcTy = funcResult.ty;
 
@@ -114,41 +115,23 @@ export function infer(ctx: Context, expr: CoreExprF<SAnn>): { expr: CoreExprF<TA
     }
 
     case 'Proj': {
-      const innerResult = infer(ctx, expr.expr);
-      const innerVal = evaluate(ctx.env, innerResult.expr as CoreExprF<unknown>);
+      reportError(ctx, expr.ann.span, 'dot projection is not supported; use trailing dot for constructors (e.g. Nat.zero.)');
+      return { expr: CoreExpr.Error(tann(expr.ann, Value.VError())), ty: Value.VError() };
+    }
 
-      // Resolve data type from the value
-      const dataName = resolveDataType(ctx, innerVal);
-      if (!dataName) {
-        reportError(ctx, expr.ann.span, 'dot projection requires a data type');
-        return { expr: CoreExpr.Error(tann(expr.ann, Value.VError())), ty: Value.VError() };
+    case 'UnresolvedCtor': {
+      // Search all data types for this constructor
+      for (const [dataName, dataInfo] of ctx.dataTypes) {
+        const ctorInfo = dataInfo.constructors.get(expr.name);
+        if (ctorInfo) {
+          return {
+            expr: CoreExpr.Ctor(dataName, expr.name, tann(expr.ann, ctorInfo.ty)),
+            ty: ctorInfo.ty,
+          };
+        }
       }
-      const dataInfo = ctx.dataTypes.get(dataName)!;
-      const ctorInfo = dataInfo.constructors.get(expr.name);
-      if (!ctorInfo) {
-        reportError(ctx, expr.ann.span, `unknown constructor .${expr.name}`);
-        return { expr: CoreExpr.Error(tann(expr.ann, Value.VError())), ty: Value.VError() };
-      }
-
-      // Apply data type arguments to constructor type
-      const dataArgs = extractDataArgs(innerVal);
-      let ctorTy = ctorInfo.ty;
-      for (const arg of dataArgs) {
-        ctorTy = ctorTy.match({
-          VPi: (_name, _domain, codomain) => closureApply(codomain, arg, evaluate),
-          VError: () => Value.VError(),
-          VType: () => Value.VError(),
-          VLam: () => Value.VError(),
-          VNeutral: () => Value.VError(),
-          VCtor: () => Value.VError(),
-          VGlobal: () => Value.VError(),
-        });
-      }
-
-      return {
-        expr: CoreExpr.Ctor(dataName, expr.name, tann(expr.ann, ctorTy)),
-        ty: ctorTy,
-      };
+      reportError(ctx, expr.ann.span, `unresolved constructor: ${expr.name}`);
+      return { expr: CoreExpr.Error(tann(expr.ann, Value.VError())), ty: Value.VError() };
     }
 
     case 'Match': {
@@ -200,7 +183,7 @@ export function infer(ctx: Context, expr: CoreExprF<SAnn>): { expr: CoreExprF<TA
 
 function appNotFunction(
   ctx: Context,
-  expr: CoreExprF<SAnn> & { tag: 'App' },
+  expr: CoreExprF<SAnn> & { tag: 'app' },
   funcResult: { expr: CoreExprF<TAnn>; ty: Value },
 ): { expr: CoreExprF<TAnn>; ty: Value } {
   reportError(ctx, expr.ann.span, 'expected a function type');
@@ -228,6 +211,40 @@ export function check(ctx: Context, expr: CoreExprF<SAnn>, expected: Value): Cor
       VCtor: () => lamExpectedPi(ctx, expr, expected),
       VGlobal: () => lamExpectedPi(ctx, expr, expected),
     });
+  }
+
+  // Resolve unqualified constructors from expected type
+  if (expr.tag === 'UnresolvedCtor') {
+    const dataName = resolveDataType(ctx, expected);
+    if (dataName) {
+      const dataInfo = ctx.dataTypes.get(dataName)!;
+      const ctorInfo = dataInfo.constructors.get(expr.name);
+      if (ctorInfo) {
+        const dataArgs = extractDataArgs(expected);
+        let ctorTy = ctorInfo.ty;
+        for (const arg of dataArgs) {
+          ctorTy = ctorTy.match({
+            VPi: (_name, _domain, codomain) => closureApply(codomain, arg, evaluate),
+            VError: () => Value.VError(),
+            VType: () => Value.VError(),
+            VLam: () => Value.VError(),
+            VNeutral: () => Value.VError(),
+            VCtor: () => Value.VError(),
+            VGlobal: () => Value.VError(),
+          });
+        }
+        if (!conv(ctx.lvl, ctorTy, expected)) {
+          const expectedQuoted = quote(ctx.lvl, expected);
+          const gotQuoted = quote(ctx.lvl, ctorTy);
+          reportError(
+            ctx,
+            expr.ann.span,
+            `type mismatch: expected ${prettyCore(expectedQuoted)}, got ${prettyCore(gotQuoted)}`,
+          );
+        }
+        return CoreExpr.Ctor(dataName, expr.name, tann(expr.ann, ctorTy));
+      }
+    }
   }
 
   // Fall through to infer + conversion check
@@ -354,30 +371,3 @@ function tann(sann: SAnn, ty: Value): TAnn {
   return { span: sann.span, ty };
 }
 
-function prettyCore(expr: CoreExprF<unknown>): string {
-  switch (expr.tag) {
-    case 'Var':
-      return `@${expr.index}`;
-    case 'Global':
-      return expr.name;
-    case 'App':
-      return `(${prettyCore(expr.func)} ${prettyCore(expr.arg)})`;
-    case 'Lam':
-      return `(\\${expr.name}. ${prettyCore(expr.body)})`;
-    case 'Pi':
-      if (expr.name === '_') {
-        return `(${prettyCore(expr.domain)} -> ${prettyCore(expr.codomain)})`;
-      }
-      return `((${expr.name} : ${prettyCore(expr.domain)}) -> ${prettyCore(expr.codomain)})`;
-    case 'Type':
-      return 'Type';
-    case 'Match':
-      return `(match ...)`;
-    case 'Ctor':
-      return `${expr.dataName}.${expr.ctorName}`;
-    case 'Proj':
-      return `(${prettyCore(expr.expr)}).${expr.name}`;
-    case 'Error':
-      return '<error>';
-  }
-}

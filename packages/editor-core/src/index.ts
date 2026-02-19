@@ -5,9 +5,10 @@ export {
   type SemanticKind,
   analyze,
 } from './analysis.js';
-export type { DefInfo } from '@edhit/language';
-export { type ScopeEntry, collectScopeAtOffset } from './scope.js';
+export type { DefInfo, HoverEntry } from '@edhit/language';
+export { type ScopeEntry, type MatchPatternContext, collectScopeAtOffset, findMatchPatternContext } from './scope.js';
 export {
+  type CompletionContext,
   type CompletionItem,
   collectCompletions,
   fuzzyMatch,
