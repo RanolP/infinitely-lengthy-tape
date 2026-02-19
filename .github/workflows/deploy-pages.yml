@@ -1,0 +1,68 @@
+name: deploy-pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/infinitely-lengthy-tape/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: configure-pages
+        uses: actions/configure-pages@v5
+
+      - name: install
+        run: pnpm install --frozen-lockfile
+
+      - name: build-app
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_READ_ONLY: "true"
+        run: pnpm --filter @edhit/infinitely-lengthy-tape build
+
+      - name: upload-pages-artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/infinitely-lengthy-tape/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: deploy-to-pages
+        id: deployment
+        uses: actions/deploy-pages@v4

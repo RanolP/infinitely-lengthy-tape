@@ -2,3 +2,6 @@ node_modules/
 dist/
 .turbo/
 *.tsbuildinfo
+
+# typst cache
+apps/infinitely-lengthy-tape/workspace/.cache/
