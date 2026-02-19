@@ -49,17 +49,30 @@ jobs:
           VITE_READ_ONLY: "true"
         run: pnpm --filter @edhit/infinitely-lengthy-tape build
 
-      - name: prepare-pages-artifact
+      - name: prepare-website-artifact-only
         run: |
-          rm -rf ./.pages
-          mkdir -p ./.pages
-          cp -a apps/infinitely-lengthy-tape/dist/client/. ./.pages/
-          touch ./.pages/.nojekyll
+          set -euxo pipefail
+          SRC="apps/infinitely-lengthy-tape/dist/client"
+          DST="$GITHUB_WORKSPACE/_site"
+          test -f "$SRC/index.html"
+          rm -rf "$DST"
+          mkdir -p "$DST"
+
+          cp -a "$SRC/index.html" "$DST/"
+          [ -f "$SRC/__spa-fallback.html" ] && cp -a "$SRC/__spa-fallback.html" "$DST/" || true
+          [ -d "$SRC/assets" ] && cp -a "$SRC/assets" "$DST/" || true
+          [ -d "$SRC/static-workspace" ] && cp -a "$SRC/static-workspace" "$DST/" || true
+
+          find "$SRC" -mindepth 1 -maxdepth 1 -type d \
+            ! -name assets \
+            ! -name static-workspace \
+            ! -name '.vite' \
+            -exec cp -a {} "$DST/" \;
 
       - name: upload-pages-artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./.pages
+          path: ${{ github.workspace }}/_site
 
   deploy:
     needs: build
