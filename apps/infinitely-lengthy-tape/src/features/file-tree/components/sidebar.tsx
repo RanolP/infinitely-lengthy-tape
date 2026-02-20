@@ -142,9 +142,11 @@ export function Sidebar({
               </button>
             </>
           )}
-          <button type="button" onClick={onRefresh} className="sidebar-action-btn" title="Refresh">
-            ↻
-          </button>
+          {!readOnly && (
+            <button type="button" onClick={onRefresh} className="sidebar-action-btn" title="Refresh">
+              ↻
+            </button>
+          )}
         </div>
       </div>
 

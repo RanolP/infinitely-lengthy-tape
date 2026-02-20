@@ -323,15 +323,21 @@
 /** App layout */
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: #171717;
   color: #e5e5e5;
 }
 
 .app-main {
   flex: 1;
-  overflow-y: auto;
+  min-width: 0;
   padding: 2rem;
+}
+
+.app-main-scroll {
+  height: 100%;
+  overflow: auto;
 }
 
 .app-empty {

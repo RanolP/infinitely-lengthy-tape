@@ -92,14 +92,16 @@ export function App({ initialData }: AppProps) {
         onRefresh={fileTree.refresh}
       />
       <main className="app-main">
-        {!filePath ? (
-          <div className="app-empty">
-            <h1 className="text-xl font-bold text-neutral-400">infinitely lengthy tape</h1>
-            <p className="mt-2 text-sm text-neutral-500">Select a file or create a new one to begin.</p>
-          </div>
-        ) : (
-          <PageEditor notebook={notebook} filePath={filePath} onRefresh={fileTree.refresh} readOnly={isReadOnly} />
-        )}
+        <div className="app-main-scroll">
+          {!filePath ? (
+            <div className="app-empty">
+              <h1 className="text-xl font-bold text-neutral-400">infinitely lengthy tape</h1>
+              <p className="mt-2 text-sm text-neutral-500">Select a file or create a new one to begin.</p>
+            </div>
+          ) : (
+            <PageEditor notebook={notebook} filePath={filePath} onRefresh={fileTree.refresh} readOnly={isReadOnly} />
+          )}
+        </div>
       </main>
     </div>
   );
