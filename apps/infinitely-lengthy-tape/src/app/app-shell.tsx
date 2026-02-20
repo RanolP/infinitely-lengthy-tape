@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Sidebar } from '../features/file-tree/components/sidebar.js';
 import { PageEditor } from '../features/page/components/page-editor.js';
@@ -30,6 +30,7 @@ export function App({ initialData }: AppProps) {
   const routePath = params['*'] || '';
   const filePath = routeToPath(routePath);
   const selectedPath = filePath || null;
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const handlePathChanged = useCallback(
     (newPath: string) => {
@@ -48,22 +49,23 @@ export function App({ initialData }: AppProps) {
   );
 
   useEffect(() => {
-    if (filePath && notebook.title) {
+    if (filePath && notebook.title && notebook.titlePath === filePath) {
       fileTree.updateTitle(filePath, notebook.title);
     }
-  }, [filePath, notebook.title, fileTree.updateTitle]);
+  }, [filePath, notebook.title, notebook.titlePath, fileTree.updateTitle]);
 
   const handleSelectFile = useCallback(
-    (path: string) => {
-      navigate(pathToRoute(path));
+    (_path: string) => {
+      setIsDrawerOpen(false);
     },
-    [navigate],
+    [],
   );
 
   const handleCreateFile = useCallback(
     async (path: string) => {
       await fileTree.create(path);
       navigate(pathToRoute(path));
+      setIsDrawerOpen(false);
     },
     [fileTree, navigate],
   );
@@ -80,7 +82,17 @@ export function App({ initialData }: AppProps) {
 
   return (
     <div className="app-layout">
+      <button
+        type="button"
+        className="app-nav-toggle"
+        onClick={() => setIsDrawerOpen(true)}
+        aria-label="Open navigation drawer"
+      >
+        ☰
+      </button>
+      {isDrawerOpen && <button type="button" className="app-drawer-backdrop" onClick={() => setIsDrawerOpen(false)} aria-label="Close navigation drawer" />}
       <Sidebar
+        className={isDrawerOpen ? 'sidebar-open' : ''}
         readOnly={isReadOnly}
         tree={fileTree.tree}
         loading={fileTree.loading}

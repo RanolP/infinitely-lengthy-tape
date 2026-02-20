@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { Link } from 'react-router';
 import type { FileNode } from '../../../shared/api/tape-api.js';
 
 interface SidebarProps {
@@ -11,6 +12,7 @@ interface SidebarProps {
   onDeleteFile: (path: string) => void;
   onRefresh: () => void;
   readOnly: boolean;
+  className?: string;
 }
 
 function TreeNode({
@@ -32,7 +34,37 @@ function TreeNode({
   const isSelected = node.path === selectedPath;
   const isDir = node.type === 'directory';
   const displayName = node.title || node.name.replace(/\.tape$/, '');
-  const fileName = !isDir ? node.name.replace(/\.tape$/, '') : null;
+  const routePath = '/' + node.path.replace(/\.tape$/, '');
+
+  if (isDir) {
+    return (
+      <details
+        className={`sidebar-item ${isSelected ? 'sidebar-item-selected' : ''}`}
+        open={expanded}
+        onToggle={(event) => setExpanded((event.currentTarget as HTMLDetailsElement).open)}
+      >
+        <summary className="sidebar-item-button sidebar-item-summary" style={{ paddingLeft: `${depth * 16 + 8}px` }}>
+          <span className="text-neutral-500">{expanded ? '▾' : '▸'}</span>
+          <span>{displayName}</span>
+        </summary>
+        {node.children && (
+          <div>
+            {node.children.map((child) => (
+              <TreeNode
+                key={child.path}
+                node={child}
+                depth={depth + 1}
+                selectedPath={selectedPath}
+                onSelectFile={onSelectFile}
+                onDeleteFile={onDeleteFile}
+                readOnly={readOnly}
+              />
+            ))}
+          </div>
+        )}
+      </details>
+    );
+  }
 
   return (
     <div>
@@ -40,25 +72,10 @@ function TreeNode({
         className={`sidebar-item ${isSelected ? 'sidebar-item-selected' : ''}`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
       >
-        {isDir ? (
-          <button
-            type="button"
-            className="sidebar-item-button"
-            onClick={() => setExpanded(!expanded)}
-          >
-            <span className="text-neutral-500">{expanded ? '▾' : '▸'}</span>
-            <span>{displayName}</span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="sidebar-item-button"
-            onClick={() => onSelectFile(node.path)}
-          >
-            <span className="text-neutral-500">◇</span>
-            <span>{displayName}</span>
-          </button>
-        )}
+        <Link className="sidebar-item-button" to={routePath} onClick={() => onSelectFile(node.path)}>
+          <span className="text-neutral-500">◇</span>
+          <span>{displayName}</span>
+        </Link>
         {!readOnly && (
           <button
             type="button"
@@ -72,21 +89,6 @@ function TreeNode({
           </button>
         )}
       </div>
-      {isDir && expanded && node.children && (
-        <div>
-          {node.children.map((child) => (
-            <TreeNode
-              key={child.path}
-              node={child}
-              depth={depth + 1}
-              selectedPath={selectedPath}
-              onSelectFile={onSelectFile}
-              onDeleteFile={onDeleteFile}
-              readOnly={readOnly}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -101,6 +103,7 @@ export function Sidebar({
   onDeleteFile,
   onRefresh,
   readOnly,
+  className,
 }: SidebarProps) {
   const [newName, setNewName] = useState('');
   const [showNew, setShowNew] = useState<'file' | 'dir' | null>(null);
@@ -118,7 +121,7 @@ export function Sidebar({
   }, [newName, showNew, onCreateFile, onCreateDir]);
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${className ?? ''}`.trim()}>
       <div className="sidebar-header">
         <h2 className="text-sm font-bold text-neutral-300">Files</h2>
         <div className="flex gap-1">

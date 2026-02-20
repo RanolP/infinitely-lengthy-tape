@@ -12,6 +12,7 @@ import { fetchFile, saveFile, renameFile, type TapeCell, type TapeFile } from '.
 
 export interface PageNotebookState {
   title: string;
+  titlePath: string | null;
   cells: Cell[];
   cellResults: Map<string, CellAnalysisSlice>;
   globalAnalysis: AnalysisResult | null;
@@ -55,6 +56,7 @@ export function usePageNotebook(
   const { cellResults, globalAnalysis, offsetMap, runAnalysisNow } = useNotebookAnalysis(cells);
 
   const [title, setTitleState] = useState('');
+  const [titlePath, setTitlePath] = useState<string | null>(null);
   const [focusedCellId, setFocusedCellId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -63,9 +65,10 @@ export function usePageNotebook(
   // Load file when path changes
   useEffect(() => {
     let cancelled = false;
-    const loadFromData = (data: TapeFile) => {
-      const t = data.title || filePath?.replace(/\.tape$/, '').split('/').pop() || '';
+    const loadFromData = (data: TapeFile, loadedPath: string) => {
+      const t = data.title || loadedPath.replace(/\.tape$/, '').split('/').pop() || '';
       setTitleState(t);
+      setTitlePath(loadedPath);
       const loaded: Cell[] = data.cells.map((c: TapeCell) => ({
         id: c.id || crypto.randomUUID(),
         type: c.type as CellType,
@@ -79,6 +82,7 @@ export function usePageNotebook(
 
     if (!filePath) {
       setTitleState('');
+      setTitlePath(null);
       resetCells([createEmptyCell()]);
       setDirty(false);
       return;
@@ -86,19 +90,21 @@ export function usePageNotebook(
 
     if (!usedInitialDataRef.current && initialFilePath === filePath && initialFile) {
       usedInitialDataRef.current = true;
-      loadFromData(initialFile);
+      loadFromData(initialFile, filePath);
       return;
     }
 
     setLoading(true);
+    setTitlePath(null);
     fetchFile(filePath)
       .then((data) => {
         if (cancelled) return;
-        loadFromData(data);
+        loadFromData(data, filePath);
       })
       .catch(() => {
         if (cancelled) return;
         setTitleState('');
+        setTitlePath(filePath);
         resetCells([createEmptyCell()]);
         setDirty(false);
         setLoading(false);
@@ -201,6 +207,7 @@ export function usePageNotebook(
 
   return {
     title,
+    titlePath,
     cells,
     cellResults,
     globalAnalysis,
