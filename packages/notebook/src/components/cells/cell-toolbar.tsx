@@ -36,7 +36,7 @@ export function CellToolbar({
       <select
         value={cellType}
         onChange={(e) => onChangeType(e.target.value as CellType)}
-        className="rounded bg-neutral-700 px-2 py-0.5 text-xs text-neutral-300"
+        className="cell-toolbar-select rounded bg-neutral-700 px-2 py-0.5 text-xs text-neutral-300"
       >
         <option value="code">Code</option>
         <option value="prose">Prose</option>
@@ -49,7 +49,7 @@ export function CellToolbar({
             <button
               type="button"
               onClick={onRun}
-              className="rounded px-2 py-0.5 text-xs text-neutral-400 hover:bg-neutral-600 hover:text-white"
+              className="cell-toolbar-action rounded px-2 py-0.5 text-xs text-neutral-400 hover:bg-neutral-600 hover:text-white"
             >
               Run
             </button>
@@ -63,7 +63,7 @@ export function CellToolbar({
         type="button"
         onClick={onMoveUp}
         disabled={isFirst}
-        className="rounded px-1.5 py-0.5 text-xs text-neutral-400 hover:bg-neutral-600 hover:text-white disabled:opacity-30"
+        className="cell-toolbar-action rounded px-1.5 py-0.5 text-xs text-neutral-400 hover:bg-neutral-600 hover:text-white disabled:opacity-30"
       >
         ↑
       </button>
@@ -71,7 +71,7 @@ export function CellToolbar({
         type="button"
         onClick={onMoveDown}
         disabled={isLast}
-        className="rounded px-1.5 py-0.5 text-xs text-neutral-400 hover:bg-neutral-600 hover:text-white disabled:opacity-30"
+        className="cell-toolbar-action rounded px-1.5 py-0.5 text-xs text-neutral-400 hover:bg-neutral-600 hover:text-white disabled:opacity-30"
       >
         ↓
       </button>
@@ -79,7 +79,7 @@ export function CellToolbar({
         type="button"
         onClick={onDelete}
         disabled={isSingle}
-        className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-neutral-600 hover:text-red-300 disabled:opacity-30"
+        className="cell-toolbar-delete rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-neutral-600 hover:text-red-300 disabled:opacity-30"
       >
         ×
       </button>
