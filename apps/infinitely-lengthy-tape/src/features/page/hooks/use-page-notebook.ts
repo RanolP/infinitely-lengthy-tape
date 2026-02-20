@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { type AnalysisResult } from '@edhit/editor-core';
 import {
   useNotebookCells,
@@ -8,7 +8,7 @@ import {
   type CellAnalysisSlice,
   type OffsetMapEntry,
 } from '@edhit/notebook';
-import { fetchFile, saveFile, renameFile, type TapeCell } from '../../../shared/api/tape-api.js';
+import { fetchFile, saveFile, renameFile, type TapeCell, type TapeFile } from '../../../shared/api/tape-api.js';
 
 export interface PageNotebookState {
   title: string;
@@ -35,7 +35,13 @@ function createEmptyCell(): Cell {
   return { id: crypto.randomUUID(), type: 'code', content: '' };
 }
 
-export function usePageNotebook(filePath: string | null, onPathChanged?: (newPath: string) => void, readOnly = false): PageNotebookState {
+export function usePageNotebook(
+  filePath: string | null,
+  onPathChanged?: (newPath: string) => void,
+  readOnly = false,
+  initialFilePath: string | null = null,
+  initialFile: TapeFile | null = null,
+): PageNotebookState {
   const {
     cells,
     addCell: rawAddCell,
@@ -52,10 +58,24 @@ export function usePageNotebook(filePath: string | null, onPathChanged?: (newPat
   const [focusedCellId, setFocusedCellId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const usedInitialDataRef = useRef(false);
 
   // Load file when path changes
   useEffect(() => {
     let cancelled = false;
+    const loadFromData = (data: TapeFile) => {
+      const t = data.title || filePath?.replace(/\.tape$/, '').split('/').pop() || '';
+      setTitleState(t);
+      const loaded: Cell[] = data.cells.map((c: TapeCell) => ({
+        id: c.id || crypto.randomUUID(),
+        type: c.type as CellType,
+        content: c.content,
+      }));
+      if (loaded.length === 0) loaded.push(createEmptyCell());
+      resetCells(loaded);
+      setDirty(false);
+      setLoading(false);
+    };
 
     if (!filePath) {
       setTitleState('');
@@ -64,22 +84,17 @@ export function usePageNotebook(filePath: string | null, onPathChanged?: (newPat
       return;
     }
 
+    if (!usedInitialDataRef.current && initialFilePath === filePath && initialFile) {
+      usedInitialDataRef.current = true;
+      loadFromData(initialFile);
+      return;
+    }
+
     setLoading(true);
     fetchFile(filePath)
       .then((data) => {
         if (cancelled) return;
-        const t = data.title || filePath.replace(/\.tape$/, '').split('/').pop() || '';
-        setTitleState(t);
-        const loaded: Cell[] = data.cells.map((c: TapeCell) => ({
-          id: c.id || crypto.randomUUID(),
-          type: c.type as CellType,
-          content: c.content,
-        }));
-        if (loaded.length === 0) loaded.push(createEmptyCell());
-        // React batches these — save effect sees dirty=false, skips
-        resetCells(loaded);
-        setDirty(false);
-        setLoading(false);
+        loadFromData(data);
       })
       .catch(() => {
         if (cancelled) return;
@@ -92,7 +107,7 @@ export function usePageNotebook(filePath: string | null, onPathChanged?: (newPat
     return () => {
       cancelled = true;
     };
-  }, [filePath, resetCells]);
+  }, [filePath, resetCells, initialFilePath, initialFile]);
 
   // Auto-save: debounce 500ms, only when dirty
   useEffect(() => {

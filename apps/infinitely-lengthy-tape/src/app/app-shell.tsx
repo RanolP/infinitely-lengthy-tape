@@ -4,6 +4,7 @@ import { Sidebar } from '../features/file-tree/components/sidebar.js';
 import { PageEditor } from '../features/page/components/page-editor.js';
 import { useFileTree } from '../features/file-tree/hooks/use-file-tree.js';
 import { usePageNotebook } from '../features/page/hooks/use-page-notebook.js';
+import type { TapeLoaderData } from '../shared/api/tape-api.js';
 
 const isReadOnly = import.meta.env.VITE_READ_ONLY === 'true';
 
@@ -13,13 +14,18 @@ function pathToRoute(filePath: string): string {
 
 function routeToPath(routePath: string): string {
   const trimmed = routePath.startsWith('/') ? routePath.slice(1) : routePath;
-  return trimmed ? `${trimmed}.tape` : '';
+  const normalized = trimmed.replace(/\/+$/g, '');
+  return normalized ? `${normalized}.tape` : '';
 }
 
-export function App() {
+interface AppProps {
+  initialData?: TapeLoaderData;
+}
+
+export function App({ initialData }: AppProps) {
   const params = useParams();
   const navigate = useNavigate();
-  const fileTree = useFileTree();
+  const fileTree = useFileTree(initialData?.initialTree);
 
   const routePath = params['*'] || '';
   const filePath = routeToPath(routePath);
@@ -33,7 +39,13 @@ export function App() {
     [navigate, fileTree],
   );
 
-  const notebook = usePageNotebook(filePath || null, handlePathChanged, isReadOnly);
+  const notebook = usePageNotebook(
+    filePath || null,
+    handlePathChanged,
+    isReadOnly,
+    initialData?.initialFilePath ?? null,
+    initialData?.initialFile ?? null,
+  );
 
   useEffect(() => {
     if (filePath && notebook.title) {

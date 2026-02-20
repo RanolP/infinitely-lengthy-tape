@@ -11,13 +11,23 @@ import {
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
 import { renderTypst } from './typst.js';
 
+function decodeRenderedSvg(value: unknown): string {
+  if (typeof value !== 'string' || !value) return '';
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return '';
+  }
+}
+
 export function TypstNodeView(props: NodeViewProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const renderRequestId = useRef(0);
   const persistedSource = ((props.node.attrs.source as string) ?? '').trim();
+  const persistedRenderedSvg = decodeRenderedSvg(props.node.attrs.renderedSvg);
   const [isEditing, setIsEditing] = useState(!(props.node.attrs.source as string));
   const [source, setSource] = useState((props.node.attrs.source as string) ?? '');
-  const [lastRendered, setLastRendered] = useState<string>('');
+  const [lastRendered, setLastRendered] = useState<string>(persistedRenderedSvg);
   const [isRendering, setIsRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
   const copyText = persistedSource.startsWith('$') && persistedSource.endsWith('$')
@@ -90,8 +100,14 @@ export function TypstNodeView(props: NodeViewProps) {
     if (isEditing) {
       return requestRender(source, 120);
     }
+    if (persistedRenderedSvg) {
+      setLastRendered(persistedRenderedSvg);
+      setRenderError(null);
+      setIsRendering(false);
+      return;
+    }
     return requestRender(persistedSource, 0);
-  }, [isEditing, persistedSource, source]);
+  }, [isEditing, persistedSource, source, persistedRenderedSvg]);
 
   const moveCaretAfterNode = () => {
     if (typeof props.getPos !== 'function') return;
@@ -108,7 +124,7 @@ export function TypstNodeView(props: NodeViewProps) {
     }
     requestRender(trimmed, 0);
     setSource(trimmed);
-    props.updateAttributes({ source: trimmed });
+    props.updateAttributes({ source: trimmed, renderedSvg: '' });
     setIsEditing(false);
     moveCaretAfterNode();
   };

@@ -42,6 +42,15 @@ async function getTypstSnippetModule(): Promise<TypstSnippetModule> {
   return mod;
 }
 
+function withTypstInlineSvgClass(svg: string): string {
+  return svg.replace(/<svg\b([^>]*)>/, (fullTag, attrs: string) => {
+    if (/\bclass\s*=/.test(attrs)) {
+      return `<svg${attrs.replace(/\bclass=(["'])(.*?)\1/, (_match, quote: string, value: string) => `class=${quote}${value} typst-inline-svg${quote}`)}>`;
+    }
+    return `<svg class="typst-inline-svg"${attrs}>`;
+  });
+}
+
 async function tryRenderWithTypstTs(source: string): Promise<string | null> {
   const mod = await getTypstSnippetModule().catch(() => null);
   if (!mod?.$typst?.svg) return null;
@@ -62,11 +71,7 @@ async function tryRenderWithTypstTs(source: string): Promise<string | null> {
   const rendered = await mod.$typst.svg({ mainContent: document });
   if (typeof rendered !== 'string') return null;
 
-  // Inline math scale + baseline alignment
-  return rendered.replace(
-    '<svg',
-    '<svg style="height:0.9em;width:auto;display:inline-block;vertical-align:-0.12em;overflow:visible"',
-  );
+  return withTypstInlineSvgClass(rendered);
 }
 
 async function tryRenderWithServerCache(source: string): Promise<string | null> {

@@ -40,6 +40,7 @@ export function ProseCell({ cellId, initialContent, isFocused }: ProseCellProps)
 
   const editor = useEditor({
     content: initialContent || undefined,
+    immediatelyRender: false,
     shouldRerenderOnTransaction: false,
     editable: !ctx.readOnly,
     extensions: [

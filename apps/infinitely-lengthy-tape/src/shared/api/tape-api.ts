@@ -17,6 +17,12 @@ export interface TapeCell {
   content: string;
 }
 
+export interface TapeLoaderData {
+  initialTree: FileNode[];
+  initialFilePath: string | null;
+  initialFile: TapeFile | null;
+}
+
 const isReadOnly = import.meta.env.VITE_READ_ONLY === 'true';
 
 let staticTreePromise: Promise<FileNode[]> | null = null;

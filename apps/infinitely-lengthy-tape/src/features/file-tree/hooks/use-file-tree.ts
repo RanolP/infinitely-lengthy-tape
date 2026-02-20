@@ -19,9 +19,9 @@ function updateNodeTitle(nodes: FileNode[], path: string, title: string): FileNo
   });
 }
 
-export function useFileTree(): FileTreeState {
-  const [tree, setTree] = useState<FileNode[]>([]);
-  const [loading, setLoading] = useState(true);
+export function useFileTree(initialTree?: FileNode[]): FileTreeState {
+  const [tree, setTree] = useState<FileNode[]>(() => initialTree ?? []);
+  const [loading, setLoading] = useState(initialTree === undefined);
 
   const refresh = useCallback(() => {
     setLoading(true);
@@ -32,8 +32,9 @@ export function useFileTree(): FileTreeState {
   }, []);
 
   useEffect(() => {
+    if (initialTree !== undefined) return;
     refresh();
-  }, [refresh]);
+  }, [initialTree, refresh]);
 
   const create = useCallback(
     async (path: string) => {

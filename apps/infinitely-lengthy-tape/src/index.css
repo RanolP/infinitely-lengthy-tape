@@ -259,7 +259,8 @@
   cursor: text;
 }
 
-.typst-inline-render svg {
+.typst-inline-render svg,
+.typst-inline-svg {
   height: 0.9em;
   width: auto;
   display: inline-block;

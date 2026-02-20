@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch server/index.ts",
+    "dev": "react-router dev",
     "build": "pnpm run generate-static-workspace && react-router build",
-    "start": "NODE_ENV=production node --import tsx server/index.ts",
+    "start": "react-router dev --mode production",
     "lint": "oxlint",
-    "format": "oxfmt --write src server",
+    "format": "oxfmt --write src",
     "generate-static-workspace": "node ./scripts/generate-static-workspace.mjs"
   },
   "dependencies": {

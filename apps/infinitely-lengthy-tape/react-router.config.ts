@@ -36,7 +36,7 @@ async function collectTapeRoutes(dirPath: string, relBase = ''): Promise<string[
 
 export default {
   appDirectory: 'src',
-  ssr: false,
+  ssr: true,
   buildDirectory: 'dist',
   basename: process.env.VITE_BASE_PATH || '/',
   prerender: async () => {

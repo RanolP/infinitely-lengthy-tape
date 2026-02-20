@@ -25,6 +25,12 @@ export const TypstEditorExtension = Node.create({
         renderHTML: (attributes) =>
           attributes.source ? { 'data-typst-source': String(attributes.source) } : {},
       },
+      renderedSvg: {
+        default: '',
+        parseHTML: (element) => element.getAttribute('data-typst-svg') ?? '',
+        renderHTML: (attributes) =>
+          attributes.renderedSvg ? { 'data-typst-svg': String(attributes.renderedSvg) } : {},
+      },
     };
   },
 
@@ -42,7 +48,7 @@ export const TypstEditorExtension = Node.create({
         () =>
         ({ commands, state }) => {
           const pos = state.selection.from;
-          const inserted = commands.insertContentAt(pos, { type: this.name, attrs: { source: '' } });
+          const inserted = commands.insertContentAt(pos, { type: this.name, attrs: { source: '', renderedSvg: '' } });
           if (!inserted) return false;
           return true;
         },

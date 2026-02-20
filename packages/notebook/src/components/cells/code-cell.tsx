@@ -82,6 +82,7 @@ export function CodeCell({ cellId, initialContent, isFocused }: CodeCellProps) {
 
   const editor = useEditor({
     content: initialHtml,
+    immediatelyRender: false,
     shouldRerenderOnTransaction: false,
     editable: !ctx.readOnly,
     extensions: [
