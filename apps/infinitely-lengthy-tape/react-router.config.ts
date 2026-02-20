@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const appRoot = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(appRoot, 'workspace');
+const isReadOnlyBuild = process.env.VITE_READ_ONLY === 'true';
 
 async function collectTapeRoutes(dirPath: string, relBase = ''): Promise<string[]> {
   let entries: Awaited<ReturnType<typeof fs.readdir>>;
@@ -36,9 +37,10 @@ async function collectTapeRoutes(dirPath: string, relBase = ''): Promise<string[
 
 export default {
   appDirectory: 'src',
-  ssr: true,
+  ssr: !isReadOnlyBuild,
   buildDirectory: 'dist',
   basename: process.env.VITE_BASE_PATH || '/',
+  routeDiscovery: isReadOnlyBuild ? { mode: 'initial' } : undefined,
   prerender: async () => {
     const routes = await collectTapeRoutes(workspaceRoot);
     return ['/', ...routes];
